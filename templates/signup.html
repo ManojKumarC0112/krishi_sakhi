@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up – Krishi Sakhi</title>
+  <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a3d0a 0%, #1b6e20 50%, #2e7d32 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      padding: 1rem;
+    }
+
+    .signup-card {
+      background: rgba(255, 255, 255, .97);
+      border-radius: 24px;
+      padding: 2.2rem 2rem;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, .3);
+      animation: slideUp .5s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 1.2rem;
+    }
+
+    .brand-icon {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: .3rem;
+    }
+
+    .brand h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1b6e20;
+    }
+
+    .brand p {
+      color: #777;
+      font-size: .85rem;
+      margin-top: .2rem;
+    }
+
+    .voice-hint {
+      background: #e8f5e9;
+      border-left: 4px solid #4CAF50;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: .82rem;
+      color: #2e7d32;
+      margin-bottom: 1.2rem;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .voice-hint span {
+      font-size: 1.2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: .4rem;
+      font-size: .9rem;
+    }
+
+    input[type="tel"],
+    input[type="password"],
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: 'Outfit', sans-serif;
+      outline: none;
+      transition: border-color .3s, box-shadow .3s;
+      background: #fafafa;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #2e7d32;
+      box-shadow: 0 0 0 4px rgba(46, 125, 50, .12);
+      background: #fff;
+    }
+
+    .pin-input {
+      text-align: center;
+      letter-spacing: 8px;
+      font-size: 1.3rem !important;
+    }
+
+    .optional-section {
+      border-top: 1px solid #eee;
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+
+    .opt-label {
+      font-size: .78rem;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: .6rem;
+    }
+
+    .errors {
+      color: #c62828;
+      font-size: .82rem;
+      margin-top: .3rem;
+    }
+
+    .errors-block {
+      background: #fff3f3;
+      border: 1px solid #ef9a9a;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 1rem;
+      font-size: .9rem;
+      color: #c62828;
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #1b6e20, #4caf50);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      margin-top: .5rem;
+    }
+
+    .btn-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(46, 125, 50, .35);
+    }
+
+    .btn-demo {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #ff8f00, #ffca28);
+      color: #333;
+      border: none;
+      border-radius: 12px;
+      font-size: .95rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      margin-top: .6rem;
+    }
+
+    .btn-demo:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255, 152, 0, .35);
+    }
+
+    .demo-label {
+      text-align: center;
+      color: #888;
+      font-size: .8rem;
+      margin-top: .3rem;
+    }
+
+    .divider {
+      text-align: center;
+      color: #aaa;
+      font-size: .82rem;
+      margin: .8rem 0;
+      position: relative;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 38%;
+      height: 1px;
+      background: #e0e0e0;
+    }
+
+    .divider::before {
+      left: 0;
+    }
+
+    .divider::after {
+      right: 0;
+    }
+
+    .footer-link {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: .9rem;
+      color: #777;
+    }
+
+    .footer-link a {
+      color: #1b6e20;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    select option {
+      font-size: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="signup-card">
+    <div class="brand">
+      <span class="brand-icon">🌾</span>
+      <h1>Krishi Sakhi</h1>
+      <p>Create your free farmer account</p>
+    </div>
+
+    <div class="voice-hint">
+      <span>🔊</span>
+      <span id="voice-guide-text">Tap each field to hear voice guidance.</span>
+    </div>
+
+    <form id="signupForm" method="POST" novalidate>{% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="errors-block">
+        {% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label>👤 Your Name</label>
+        <input type="text" name="name" placeholder="Enter your full name" value="{{ form.name.value|default:'' }}"
+          autocomplete="name" required onfocus="speakHint('name')" />
+        {% if form.name.errors %}<div class="errors">{{ form.name.errors.as_text }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>📱 Phone Number</label>
+        <input type="tel" name="phone" inputmode="numeric" pattern="[0-9]*" placeholder="Enter 10-digit phone number"
+          maxlength="10" required value="{{ form.phone.value|default:'' }}" onfocus="speakHint('phone')" />
+        {% if form.phone.errors %}<div class="errors">{{ form.phone.errors.as_text }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>🔒 Set a 4-Digit PIN</label>
+        <input type="password" name="pin" inputmode="numeric" pattern="[0-9]*" placeholder="● ● ● ●" maxlength="4"
+          required class="pin-input" onfocus="speakHint('pin')" />
+        {% if form.pin.errors %}<div class="errors">{{ form.pin.errors.as_text }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>🔒 Confirm PIN</label>
+        <input type="password" name="pin_confirm" inputmode="numeric" pattern="[0-9]*" placeholder="● ● ● ●"
+          maxlength="4" required class="pin-input" onfocus="speakHint('confirm')" />
+        {% if form.pin_confirm.errors %}<div class="errors">{{ form.pin_confirm.errors.as_text }}</div>{% endif %}
+      </div>
+
+      <div class="optional-section">
+        <div class="opt-label">Optional – for AI farm advice</div>
+
+        <div class="form-group">
+          <label>🌾 Main Crops</label>
+          <input type="text" name="main_crops" placeholder="e.g. Rice, Wheat, Tomato"
+            value="{{ form.main_crops.value|default:'' }}" onfocus="speakHint('crops')" />
+        </div>
+
+        <div class="form-group">
+          <label>🏔️ Soil Type</label>
+          <select name="soil_type" onfocus="speakHint('soil')">
+            <option value="">Select Soil Type</option>
+            <option value="Alluvial">Alluvial Soil</option>
+            <option value="Black">Black Soil (Regur)</option>
+            <option value="Red">Red Soil</option>
+            <option value="Laterite">Laterite Soil</option>
+            <option value="Desert">Desert / Sandy Soil</option>
+            <option value="Mountain">Mountain / Forest Soil</option>
+            <option value="Saline">Saline / Alkaline Soil</option>
+            <option value="Peaty">Peaty / Marshy Soil</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-main">Create Account ✅</button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <button class="btn-demo" onclick="window.location='/api/demo-login/'">
+      🎯 Try Demo Login (No signup needed!)
+    </button>
+    <p class="demo-label">Instantly explore Krishi Sakhi as a demo farmer</p>
+
+    <div class="footer-link">
+      Already have an account? <a href="{% url 'login' %}">Login here</a>
+    </div>
+  </div>
+
+  <div id="google_translate_element" style="display:none;"></div>
+  <script>
+    const voiceHints = {
+      phone: { en: "Enter your 10-digit mobile phone number.", hi: "अपना 10 अंकों का मोबाइल नंबर दर्ज करें।", kn: "ನಿಮ್ಮ 10 ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ.", ta: "உங்கள் 10 இலக்க எண் உள்ளிடுக.", te: "మీ 10 అంకెల నంబర్ నమోదు చేయండి." },
+      pin: { en: "Set a 4-digit PIN you'll remember easily.", hi: "एक 4 अंकों का पिन चुनें जो आपको आसानी से याद रहे।", kn: "ನೆನಪಿಟ್ಟುಕೊಳ್ಳಲು ಸುಲಭವಾದ 4 ಅಂಕಿಯ ಪಿನ್ ಹಾಕಿ.", ta: "எடுத்துக்கொள்ளக்கூடிய 4 இலக்க PIN அமையுங்கள்.", te: "గుర్తుండేలా 4 అంకెల PIN అమర్చండి." },
+      confirm: { en: "Re-enter your PIN to confirm.", hi: "पुष्टि के लिए अपना पिन दोबारा दर्ज करें।", kn: "ದೃಢೀಕರಿಸಲು ನಿಮ್ಮ ಪಿನ್ ಅನ್ನು ಮತ್ತೆ ನಮೂದಿಸಿ.", ta: "PIN ஐ மீண்டும் உள்ளிடுக.", te: "నిర్ధారించడానికి PIN మళ్ళీ నమోదు చేయండి." },
+      crops: { en: "Optional: type your main crops, like Rice or Tomato.", hi: "वैकल्पिक: अपनी मुख्य फसलें टाइप करें, जैसे चावल या टमाटर।", kn: "ಐಚ್ಛಿಕ: ನಿಮ್ಮ ಮುಖ್ಯ ಬೆಳೆಗಳನ್ನು ಟೈಪ್ ಮಾಡಿ.", ta: "விருப்பமான பயிர்களை உள்ளிடுக.", te: "ఐచ్ఛికం: మీ ప్రధాన పంటలను నమోదు చేయండి." },
+      soil: { en: "Select your soil type from the list.", hi: "सूची से अपनी मिट्टी का प्रकार चुनें।", kn: "ಪಟ್ಟಿಯಿಂದ ನಿಮ್ಮ ಮಣ್ಣಿನ ವಿಧ ಆಯ್ಕೆ ಮಾಡಿ.", ta: "பட்டியலிருந்து மண் வகையைத் தேர்ந்தெடுக்கவும்.", te: "జాబితా నుండి మీ నేల రకాన్ని ఎంచుకోండి." },
+    };
+    function detectLang() {
+      return localStorage.getItem('sakhiManualLang') || localStorage.getItem('sakhiAutoLang') || 'hi';
+    }
+    function speakHint(field) {
+      const lang = detectLang();
+      const bcp = { en: 'en-US', hi: 'hi-IN', kn: 'kn-IN', ta: 'ta-IN', te: 'te-IN', mr: 'mr-IN' }[lang] || 'hi-IN';
+      const hints = voiceHints[field];
+      const text = (hints && (hints[lang] || hints['en'])) || '';
+      if (!text) return;
+      document.getElementById('voice-guide-text').textContent = text;
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = bcp; u.rate = .95;
+        speechSynthesis.speak(u);
+      }
+    }
+    window.addEventListener('load', () => {
+      const lang = detectLang();
+      const bcp = { en: 'en-US', hi: 'hi-IN', kn: 'kn-IN', ta: 'ta-IN', te: 'te-IN', mr: 'mr-IN' }[lang] || 'hi-IN';
+      const welcomes = {
+        hi: "कृषि सखी में पंजीकरण करें। हर फ़ील्ड पर टैप करें, और आवाज़ में निर्देश सुनें।",
+        kn: "ಕೃಷಿ ಸಖಿಯಲ್ಲಿ ನೋಂದಣಿ ಮಾಡಿ. ಪ್ರತಿ ಫ಼ೀಲ್ಡ್ ಅನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ ಮಾರ್ಗದರ್ಶನ ಕೇಳಿ.",
+        ta: "கிருஷி சகியில் பதியை. ஒவ்வொரு புலத்திலும் தட்டி வழிகாட்டுதல் கேளுங்கள்.",
+        te: "కృషి సఖిలో నమోదు చేసుకోండి. ప్రతి ఫీల్డ్‌ని తాకి సూచనలు వినండి.",
+        en: "Sign up for Krishi Sakhi. Tap each field to hear voice guidance.",
+      };
+      const text = welcomes[lang] || welcomes['hi'];
+      document.getElementById('voice-guide-text').textContent = text;
+      setTimeout(() => {
+        if ('speechSynthesis' in window) {
+          speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = bcp; u.rate = .9;
+          speechSynthesis.speak(u);
+        }
+      }, 700);
+      const savedLang = localStorage.getItem('sakhiAutoLang');
+      if (!savedLang) {
+        fetch('/api/detect-language/').then(r => r.json()).then(d => {
+          if (d.lang) { localStorage.setItem('sakhiAutoLang', d.lang); if (d.lang !== 'en') switchLanguage(d.lang); }
+        }).catch(() => { });
+      }
+    });
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'en,hi,ta,te,kn', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false }, 'google_translate_element');
+    }
+    function switchLanguage(langCode) {
+      var v = "/en/" + langCode;
+      document.cookie = "googtrans=" + v + "; path=/";
+      document.cookie = "googtrans=" + v + "; path=/; domain=" + window.location.hostname;
+      window.location.reload();
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+
+</html>

@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Crop Guardian: Video Analysis{% endblock %}
+
+{% block styles %}
+<style>
+    .wizard-wrap {
+        max-width: 700px;
+        margin: 2rem auto;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+        overflow: hidden;
+        border: 1px solid #eee;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* Progress header */
+    .wiz-progress {
+        background: #fcfcfc;
+        border-bottom: 1px solid #eee;
+        padding: 1.6rem 2rem 1.2rem;
+    }
+
+    .wiz-steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+    }
+
+    .wiz-steps::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #eee;
+        z-index: 1;
+    }
+
+    .wiz-progress-line {
+        position: absolute;
+        top: 20px;
+        left: 0;
+        height: 3px;
+        background: #4caf50;
+        z-index: 2;
+        transition: width .4s ease;
+        width: 0%;
+    }
+
+    .wiz-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 3;
+        gap: .4rem;
+    }
+
+    .wiz-step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #fff;
+        border: 3px solid #ddd;
+        color: #999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all .3s;
+    }
+
+    .wiz-step.active .wiz-step-circle {
+        border-color: #4caf50;
+        color: #4caf50;
+    }
+
+    .wiz-step.done .wiz-step-circle {
+        background: #4caf50;
+        border-color: #4caf50;
+        color: #fff;
+    }
+
+    .wiz-step-lbl {
+        font-size: .78rem;
+        font-weight: 600;
+        color: #888;
+        text-align: center;
+    }
+
+    .wiz-step.active .wiz-step-lbl {
+        color: #2e7d32;
+    }
+
+    /* Steps content */
+    .wiz-step-content {
+        display: none;
+        padding: 2rem;
+        animation: fadeIn .4s ease;
+    }
+
+    .wiz-step-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .wiz-step-content h3 {
+        color: #1b5e20;
+        margin: 0 0 .6rem;
+        font-size: 1.1rem;
+    }
+
+    .wiz-step-content p {
+        color: #666;
+        font-size: .88rem;
+        margin: 0 0 1.2rem;
+        line-height: 1.55;
+    }
+
+    .req-row {
+        background: #f9f9f9;
+        padding: .9rem 1.1rem;
+        border-radius: 10px;
+        margin-bottom: .6rem;
+        border: 1px solid #eee;
+        font-size: .88rem;
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+    }
+
+    .req-icon {
+        font-size: 1.2rem;
+    }
+
+    /* Upload box */
+    .upload-box {
+        border: 2.5px dashed #a7d3a6;
+        border-radius: 12px;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        background: #f1f8e9;
+        transition: all .2s;
+        display: block;
+        margin-bottom: .8rem;
+    }
+
+    .upload-box:hover,
+    .upload-box.dragover {
+        background: #e8f5e9;
+        border-color: #4caf50;
+        transform: translateY(-2px);
+    }
+
+    .upload-box .ub-icon {
+        font-size: 2.8rem;
+        margin-bottom: .5rem;
+    }
+
+    .upload-box .ub-title {
+        font-weight: 700;
+        color: #1b5e20;
+        font-size: .95rem;
+        margin: 0 0 .25rem;
+    }
+
+    .upload-box .ub-sub {
+        color: #888;
+        font-size: .8rem;
+    }
+
+    .file-name {
+        text-align: center;
+        font-weight: 700;
+        color: #333;
+        font-size: .88rem;
+        min-height: 22px;
+    }
+
+    /* Navigation */
+    .wiz-nav {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: .8rem;
+        margin-top: 1.8rem;
+        padding-top: 1.2rem;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .btn-wiz-prev {
+        padding: 10px 20px;
+        border: 2px solid #ddd;
+        background: #fff;
+        border-radius: 10px;
+        font-weight: 700;
+        color: #555;
+        cursor: pointer;
+        font-size: .9rem;
+        transition: all .2s;
+    }
+
+    .btn-wiz-prev:hover {
+        border-color: #aaa;
+    }
+
+    .btn-wiz-next {
+        padding: 11px 26px;
+        border: none;
+        background: linear-gradient(135deg, #1b5e20, #43a047);
+        color: #fff;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: .9rem;
+        transition: all .2s;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .btn-wiz-next:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(46, 125, 50, .35);
+    }
+
+    .btn-wiz-next:disabled {
+        opacity: .5;
+        cursor: default;
+        transform: none;
+        box-shadow: none;
+    }
+
+    @media(max-width: 500px) {
+        .wiz-step-content {
+            padding: 1.4rem 1rem;
+        }
+
+        .wiz-progress {
+            padding: 1.2rem 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wizard-wrap">
+    <!-- Progress -->
+    <div class="wiz-progress">
+        <div class="wiz-steps">
+            <div class="wiz-progress-line" id="wiz-line"></div>
+            <div class="wiz-step active" id="wiz-lbl-1">
+                <div class="wiz-step-circle">1</div>
+                <div class="wiz-step-lbl">File Check</div>
+            </div>
+            <div class="wiz-step" id="wiz-lbl-2">
+                <div class="wiz-step-circle">2</div>
+                <div class="wiz-step-lbl">Upload Video</div>
+            </div>
+        </div>
+    </div>
+
+    <form action="{% url 'video_analysis_upload' %}" method="POST" enctype="multipart/form-data" id="video-form">
+        {% csrf_token %}
+
+        <!-- Step 1 -->
+        <div class="wiz-step-content active" id="wiz-s1">
+            <h3>&#128249; Step 1: Video Requirements</h3>
+            <p>Make sure your video meets these standards for accurate AI crop analysis.</p>
+
+            <div class="req-row">
+                <span class="req-icon">&#9201;</span>
+                <div><strong>Length:</strong> 30–60 seconds</div>
+            </div>
+            <div class="req-row">
+                <span class="req-icon">&#127909;</span>
+                <div><strong>Format:</strong> MP4 or MOV</div>
+            </div>
+            <div class="req-row">
+                <span class="req-icon">&#128247;</span>
+                <div><strong>Quality:</strong> Clear, steady footage of your crop leaves</div>
+            </div>
+            <div class="req-row">
+                <span class="req-icon">&#9728;&#65039;</span>
+                <div><strong>Lighting:</strong> Good natural light, avoid dark or blurry videos</div>
+            </div>
+
+            <div class="wiz-nav">
+                <button type="button" class="btn-wiz-next" id="btn-next-1">
+                    Proceed to Upload &nbsp;&#10140;
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="wiz-step-content" id="wiz-s2">
+            <h3>&#128249; Step 2: Upload Your Field Video</h3>
+            <p>Select a video of your crop field for AI-powered disease detection.</p>
+
+            <label class="upload-box" id="upload-box" for="video-input">
+                <div class="ub-icon">&#127909;</div>
+                <div class="ub-title">Tap to select video</div>
+                <div class="ub-sub">MP4 or MOV &nbsp;&bull;&nbsp; Max 100 MB</div>
+            </label>
+            <input type="file" id="video-input" name="video" accept="video/mp4,video/quicktime" style="display:none;">
+            <div class="file-name" id="file-name-display">No file selected</div>
+
+            <div class="wiz-nav">
+                <button type="button" class="btn-wiz-prev" id="btn-back-2">&#8592; Back</button>
+                <button type="submit" class="btn-wiz-next" id="btn-analyze" disabled>
+                    &#129302; Start AI Analysis
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Wizard state
+    var currentStep = 1;
+
+    function goToStep(n) {
+        // Hide all
+        document.getElementById('wiz-s1').classList.remove('active');
+        document.getElementById('wiz-s2').classList.remove('active');
+        // Show target
+        document.getElementById('wiz-s' + n).classList.add('active');
+        // Update labels
+        var lbl1 = document.getElementById('wiz-lbl-1');
+        var lbl2 = document.getElementById('wiz-lbl-2');
+        if (n === 1) {
+            lbl1.className = 'wiz-step active';
+            lbl2.className = 'wiz-step';
+            document.getElementById('wiz-line').style.width = '0%';
+        } else {
+            lbl1.className = 'wiz-step done';
+            lbl2.className = 'wiz-step active';
+            document.getElementById('wiz-line').style.width = '100%';
+        }
+        currentStep = n;
+    }
+
+    // Wire up buttons after DOM ready
+    document.addEventListener('DOMContentLoaded', function () {
+        var btnNext = document.getElementById('btn-next-1');
+        var btnBack = document.getElementById('btn-back-2');
+        var fileInput = document.getElementById('video-input');
+        var uploadBox = document.getElementById('upload-box');
+        var fileLabel = document.getElementById('file-name-display');
+        var analyzeBtn = document.getElementById('btn-analyze');
+
+        if (btnNext) {
+            btnNext.addEventListener('click', function () { goToStep(2); });
+        }
+        if (btnBack) {
+            btnBack.addEventListener('click', function () { goToStep(1); });
+        }
+
+        // File input
+        if (fileInput) {
+            fileInput.addEventListener('change', function () {
+                if (fileInput.files && fileInput.files.length > 0) {
+                    fileLabel.textContent = fileInput.files[0].name;
+                    analyzeBtn.disabled = false;
+                    uploadBox.style.borderColor = '#4caf50';
+                    uploadBox.style.background = '#e8f5e9';
+                }
+            });
+        }
+
+        // Drag & drop
+        if (uploadBox) {
+            uploadBox.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                uploadBox.classList.add('dragover');
+            });
+            uploadBox.addEventListener('dragleave', function () {
+                uploadBox.classList.remove('dragover');
+            });
+            uploadBox.addEventListener('drop', function (e) {
+                e.preventDefault();
+                uploadBox.classList.remove('dragover');
+                var files = e.dataTransfer.files;
+                if (files && files.length > 0) {
+                    fileInput.files = files;
+                    fileLabel.textContent = files[0].name;
+                    analyzeBtn.disabled = false;
+                    uploadBox.style.borderColor = '#4caf50';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

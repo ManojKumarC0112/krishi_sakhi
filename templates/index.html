@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Krishi Sakhi{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+<style>
+    .content-wrapper {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .hero {
+        min-height: 100vh;
+        padding-top: 80px;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        position: relative;
+    }
+
+    .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1;
+    }
+
+    .hero-text {
+        position: relative;
+        z-index: 2;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .hero-text {
+            width: 90%;
+            padding: 1.5rem;
+        }
+
+        .hero-text h1 {
+            font-size: 2rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hero-buttons .btn {
+            width: 100%;
+            margin: 0 !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-text">
+        {% if user.is_authenticated %}
+        <h1 id="greeting">{{ timeGreeting|default:"Namaste" }}, {{ display_name }}! </h1>
+        <p>What would you like to do today?</p>
+
+        <div class="hero-buttons">
+            <a href="{% url 'analyze_field_dashboard' %}" class="btn" id="btn-analyze">📸 Scan My Crop</a>
+            <a href="{% url 'crop_prices' %}" class="btn" id="btn-prices"
+                style="background: #ffc107; color: #333; margin-left: 10px;">📈 Sales Hub</a>
+            <a href="{% url 'weather' %}" class="btn" id="btn-weather"
+                style="background: #29b6f6; color: #fff; margin-left: 10px;">🌦️ Agri-Planner</a>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="#" onclick="startPageTour(); return false;"
+                style="color: rgba(255,255,255,0.9); text-decoration: none; font-size: 1rem; border-bottom: 1px dotted white; padding-bottom: 2px;">
+                🔄 Show Me How It Works
+            </a>
+        </div>
+        {% else %}
+        <h1>Welcome to Krishi Sakhi</h1>
+        <p>Your smart farming assistant using AI 🌱</p>
+        <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+            <a href="{% url 'login' %}" class="btn">Login to Start</a>
+            <a href="/api/demo-login/" class="btn" style="background:#ffc107; color:#333;">🎯 Try Demo</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<footer
+    style="text-align: center; padding: 1rem; background-color: #006400; color: #fff; position: relative; z-index: 2;">
+    <p>© 2025 Krishi Sakhi | By MNV Nexus 🌾</p>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // --- PAGE-SPECIFIC TOUR DATA ---
+    window.pageTourSteps = [
+        {
+            target: 'btn-analyze',
+            title: '📸 Detect Disease',
+            desc: 'Click this button to take a photo of your sick plant. AI will tell you the medicine.',
+            title_hi: '📸 बीमारी पहचानें', desc_hi: 'अपनी बीमार फसल की फोटो लेने के लिए यहाँ क्लिक करें।',
+            title_kn: '📸 ರೋಗ ಪತ್ತೆ', desc_kn: 'ನಿಮ್ಮ ರೋಗಗ್ರಸ್ತ ಸಸ್ಯದ ಫೋಟೋ ತೆಗೆಯಲು ಈ ಬಟನ್ ಒತ್ತಿ.',
+            title_ta: '📸 நோய் கண்டறிதல்', desc_ta: 'நோயுற்ற பயிரை படம் எடுக்க இங்கே கிளிக் செய்யவும்.',
+            title_te: '📸 వ్యాధి గుర్తింపు', desc_te: 'మీ రోగగ్రస్తమైన మొక్క ఫోటో తీయడానికి ఇక్కడ క్లిక్ చేయండి.',
+        },
+        {
+            target: 'btn-prices',
+            title: '📈 Strategic Sales Hub',
+            desc: 'See live mandi prices, AI predicted yield for your land, and best week to sell!',
+            title_hi: '📈 बिक्री हब', desc_hi: 'ताज़ा मंडी भाव, AI पैदावार अनुमान और बेचने का सही समय देखें।',
+            title_kn: '📈 ಮಾರುಕಟ್ಟೆ ಹಬ್', desc_kn: 'ಮಂಡಿ ಬೆಲೆ ಮತ್ತು ಮಾರಾಟದ ಉತ್ತಮ ಸಮಯ ನೋಡಿ!',
+            title_ta: '📈 விற்பனை மையம்', desc_ta: 'சந்தை விலை மற்றும் AI மகசூல் கணிப்பை காணவும்.',
+            title_te: '📈 మార్కెట్ సేల్స్ హబ్', desc_te: 'మండి ధర మరియు AI దిగుబడి అంచనా చూడండి.',
+        },
+        {
+            target: 'btn-weather',
+            title: '🌦️ Agri-Planner',
+            desc: 'Know when to spray pesticide (✅ safe / ❌ avoid) and when to water today.',
+            title_hi: '🌦️ कृषि प्लानर', desc_hi: 'कीटनाशक छिड़काव और सिंचाई का सही समय देखें।',
+            title_kn: '🌦️ ಕೃಷಿ ಯೋಜಕ', desc_kn: 'ಕೀಟನಾಶಕ ✅/❌ ಮತ್ತು ನೀರಾವರಿ ಯೋಜನೆ ನೋಡಿ.',
+            title_ta: '🌦️ அகரி-திட்டமிடல்', desc_ta: 'பூச்சிக்கொல்லி ✅/❌ மற்றும் நீர்ப்பாசன திட்டம் காணுங்கள்.',
+            title_te: '🌦️ అగ్రి-ప్లానర్', desc_te: 'పురుగుమందు ✅/❌ మరియు నీటిపారుదల ప్రణాళిక చూడండి.',
+        },
+        {
+            target: 'sakhi-fab',
+            title: '🗣️ Talk to Sakhi',
+            desc: 'Click here to speak in your language. Ask any farming question!',
+            title_hi: '🗣️ सखी से बात करें', desc_hi: 'यहाँ क्लिक करके अपनी भाषा में सवाल पूछें।',
+            title_kn: '🗣️ ಸಖಿ ಜೊತೆ ಮಾತನಾಡಿ', desc_kn: 'ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಯಾವುದೇ ಕೃಷಿ ಪ್ರಶ್ನೆ ಕೇಳಲು ಇಲ್ಲಿ ಕ್ಲಿಕ್ ಮಾಡಿ!',
+            title_ta: '🗣️ சகியுடன் பேசு', desc_ta: 'உங்கள் மொழியில் கேள்வி கேட்க இங்கே கிளிக் செய்யவும்.',
+            title_te: '🗣️ సఖీతో మాట్లాడండి', desc_te: 'మీ భాషలో ఏదైనా వ్యవసాయ ప్రశ్న అడగడానికి ఇక్కడ క్లిక్ చేయండి!',
+        }
+    ];
+
+    const voiceMessages = {
+        'hi': 'कृषि सखी में आपका स्वागत है। फसल की जाँच के लिए ऊपर बटन दबाएँ, या सखी से बात करने के लिए चैट बटन दबाएँ।',
+        'en': 'Welcome to Krishi Sakhi. Tap Analyze Field to scan a crop, or tap the chat button to ask me a question.',
+        'ta': 'கிருஷி சகிக்கு வரவேற்கிறோம். பயிரை ஸ்கேன் செய்ய பொத்தானை தட்டவும்.',
+        'te': 'కృషి సఖీకి స్వాగతం. పంటను స్కాన్ చేయడానికి బటన్ నొక్కండి.',
+        'kn': 'ಕೃಷಿ ಸಖಿಗೆ ಸ್ವಾಗತ. ಬೆಳೆಯನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಲು ಬಟನ್ ಒತ್ತಿ.'
+    };
+
+    function triggerWelcome(forceLang = null) {
+        if (!sessionStorage.getItem('voiceWelcomePlayed')) {
+            const trySpeak = () => {
+                if (window.speechSynthesis.getVoices().length > 0) {
+                    const lang = forceLang || getPageLang();
+                    const text = voiceMessages[lang] || voiceMessages['en'];
+                    setTimeout(() => speakLocalText(text), 1500);
+                    sessionStorage.setItem('voiceWelcomePlayed', 'true');
+                } else {
+                    setTimeout(trySpeak, 200);
+                }
+            };
+            trySpeak();
+        }
+    }
+
+    window.addEventListener('load', () => {
+        const savedAutoLang = localStorage.getItem('sakhiAutoLang');
+        const manualLang = localStorage.getItem('sakhiManualLang');
+
+        if (manualLang || savedAutoLang) {
+            triggerWelcome(manualLang || savedAutoLang);
+            return;
+        }
+
+        fetch('/api/detect-language/')
+            .then(r => r.json())
+            .then(data => {
+                const detectedLang = data.lang || 'hi';
+                localStorage.setItem('sakhiAutoLang', detectedLang);
+                if (detectedLang !== 'en') {
+                    switchLanguage(detectedLang);
+                } else {
+                    triggerWelcome('en');
+                }
+            })
+            .catch(() => triggerWelcome('hi'));
+    });
+</script>
+{% endblock %}

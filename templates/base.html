@@ -1,0 +1,2486 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>{% block title %}Krishi Sakhi{% endblock %}</title>
+
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="theme-color" content="#2c5e2e">
+
+    <link rel="stylesheet" href="{% static 'css/global_styles.css' %}">
+
+    <style>
+        /* --- 1. BASE STYLES --- */
+
+        body,
+
+        html {
+
+            margin: 0;
+
+            padding: 0;
+
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+            background-color: #f4f7f6;
+
+            color: #333;
+
+            overscroll-behavior-y: none;
+
+            /* Allow Google Translate to shift the page */
+
+            position: relative;
+
+            min-height: 100%;
+
+        }
+
+        body {
+
+            padding-top: 70px;
+
+        }
+
+        /* --- 2. NAVBAR (Fixed) --- */
+
+        .navbar {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            background-color: #2c5e2e;
+
+            padding: 0 1rem;
+
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+            position: fixed;
+
+            width: 100%;
+
+            height: 70px;
+
+            /* Top will be adjusted by JS */
+
+            top: 0;
+
+            left: 0;
+
+            z-index: 1000;
+
+            box-sizing: border-box;
+
+            padding-top: env(safe-area-inset-top);
+
+            height: calc(70px + env(safe-area-inset-top));
+
+            transition: top 0.3s ease;
+
+            /* Smooth slide */
+
+        }
+
+        .logo {
+
+            font-size: 1.3rem;
+
+            font-weight: bold;
+
+            color: #fff;
+
+            text-decoration: none;
+
+            display: flex;
+
+            align-items: center;
+
+            z-index: 1002;
+
+        }
+
+        /* --- 3. RIGHT SIDE CONTROLS --- */
+
+        .nav-right-group {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 15px;
+
+        }
+
+        .nav-auth-icons {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+        }
+
+        .hamburger {
+
+            display: none;
+
+            font-size: 1.8rem;
+
+            color: white;
+
+            cursor: pointer;
+
+            z-index: 1002;
+
+            padding: 5px;
+
+        }
+
+        /* --- 4. NAVIGATION LINKS --- */
+
+        .nav-links-desktop {
+
+            display: flex;
+
+            gap: 1.5rem;
+
+        }
+
+        .nav-links-desktop a {
+
+            color: white;
+
+            text-decoration: none;
+
+            font-weight: 500;
+
+            font-size: 1rem;
+
+            padding: 8px 0;
+
+            border-bottom: 2px solid transparent;
+
+            transition: 0.3s;
+
+        }
+
+        .nav-links-desktop a:hover,
+
+        .nav-links-desktop a.active {
+
+            color: #a7d3a6;
+
+            border-bottom: 2px solid #a7d3a6;
+
+        }
+
+        /* Mobile Dropdown */
+
+        .nav-links-mobile {
+
+            display: none;
+
+            position: absolute;
+
+            top: 100%;
+
+            left: 0;
+
+            width: 100%;
+
+            background-color: #2c5e2e;
+
+            flex-direction: column;
+
+            padding: 0;
+
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+            animation: slideDown 0.3s ease-out;
+
+        }
+
+        .nav-links-mobile.active {
+
+            display: flex;
+
+        }
+
+        .nav-links-mobile a {
+
+            padding: 16px 20px;
+
+            width: 100%;
+
+            box-sizing: border-box;
+
+            text-align: left;
+
+            color: white;
+
+            text-decoration: none;
+
+            font-size: 1.1rem;
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+            font-weight: 500;
+
+        }
+
+        .nav-links-mobile a:active {
+
+            background-color: rgba(255, 255, 255, 0.1);
+
+        }
+
+        .nav-links-mobile a:last-child {
+
+            border-bottom: none;
+
+        }
+
+        @keyframes slideDown {
+
+            from {
+
+                opacity: 0;
+
+                transform: translateY(-10px);
+
+            }
+
+            to {
+
+                opacity: 1;
+
+                transform: translateY(0);
+
+            }
+
+        }
+
+        @media (max-width: 768px) {
+
+            .nav-links-desktop {
+
+                display: none;
+
+            }
+
+            .hamburger {
+
+                display: block;
+
+            }
+
+        }
+
+        /* --- 5. DROPDOWNS --- */
+
+        .profile-menu,
+
+        .language-menu {
+
+            position: relative;
+
+            display: inline-block;
+
+            cursor: pointer;
+
+        }
+
+        .dropdown-content {
+
+            display: none;
+
+            position: absolute;
+
+            background-color: #fff;
+
+            min-width: 160px;
+
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+            z-index: 1005;
+
+            right: 0;
+
+            top: 130%;
+
+            border-radius: 8px;
+
+            overflow: hidden;
+
+            text-align: left;
+
+        }
+
+        .profile-menu:hover .dropdown-content,
+
+        .language-menu:hover .dropdown-content {
+
+            display: block;
+
+        }
+
+        .dropdown-content a {
+
+            color: black !important;
+
+            padding: 12px 16px;
+
+            display: block;
+
+            text-decoration: none;
+
+            border-bottom: 1px solid #f0f0f0;
+
+        }
+
+        /* --- GLOBAL SPOTLIGHT TOUR --- */
+
+        #tour-spotlight {
+
+            position: fixed;
+
+            border-radius: 8px;
+
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85);
+
+            z-index: 3000;
+
+            pointer-events: none;
+
+            transition: all 0.4s ease-in-out;
+
+            opacity: 0;
+
+            border: 2px solid #fff;
+
+        }
+
+        #tour-tooltip {
+
+            position: fixed;
+
+            background: white;
+
+            width: 280px;
+
+            padding: 20px;
+
+            border-radius: 12px;
+
+            z-index: 3001;
+
+            opacity: 0;
+
+            transition: all 0.4s ease-in-out;
+
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+
+        }
+
+        .tt-title {
+
+            font-size: 1.2rem;
+
+            font-weight: bold;
+
+            color: #2c5e2e;
+
+            margin-bottom: 8px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+        }
+
+        .tt-desc {
+
+            font-size: 0.95rem;
+
+            color: #555;
+
+            line-height: 1.5;
+
+            margin-bottom: 15px;
+
+        }
+
+        .tt-buttons {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+        }
+
+        .tt-skip {
+
+            color: #888;
+
+            font-size: 0.9rem;
+
+            text-decoration: underline;
+
+            cursor: pointer;
+
+        }
+
+        .tt-next {
+
+            background: #4CAF50;
+
+            color: white;
+
+            border: none;
+
+            padding: 8px 20px;
+
+            border-radius: 20px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+        @keyframes pulse-border {
+
+            0% {
+
+                transform: scale(1);
+
+                border-color: rgba(255, 255, 255, 1);
+
+            }
+
+            50% {
+
+                transform: scale(1.05);
+
+                border-color: rgba(255, 255, 255, 0.5);
+
+            }
+
+            100% {
+
+                transform: scale(1);
+
+                border-color: rgba(255, 255, 255, 1);
+
+            }
+
+        }
+
+        .spotlight-active {
+
+            animation: pulse-border 2s infinite;
+
+        }
+
+        /* Floating Help Button */
+
+        .help-tour-btn {
+
+            position: fixed;
+
+            bottom: 20px;
+
+            left: 20px;
+
+            width: 50px;
+
+            height: 50px;
+
+            border-radius: 50%;
+
+            background: #FF9800;
+
+            color: white;
+
+            border: none;
+
+            font-size: 1.5rem;
+
+            cursor: pointer;
+
+            z-index: 2000;
+
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            transition: transform 0.2s;
+
+        }
+
+        .help-tour-btn:hover {
+
+            transform: scale(1.1);
+
+        }
+
+        /* chatbot styles defined below */
+
+        /* ─── PREMIUM CHATBOT ─── */
+
+        .sakhi-messages {
+
+            flex: 1;
+
+            overflow-y: auto;
+
+            padding: 16px;
+
+            background: linear-gradient(180deg, #f8fdf8 0%, #f1f8f1 100%);
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 14px;
+
+            -webkit-overflow-scrolling: touch;
+
+        }
+
+        .sakhi-messages::-webkit-scrollbar {
+
+            width: 4px;
+
+        }
+
+        .sakhi-messages::-webkit-scrollbar-thumb {
+
+            background: #c8e6c9;
+
+            border-radius: 4px;
+
+        }
+
+        .s-msg-user {
+
+            background: linear-gradient(135deg, #2e7d32, #43a047);
+
+            color: #fff;
+
+            padding: 11px 16px;
+
+            border-radius: 20px 20px 4px 20px;
+
+            align-self: flex-end;
+
+            max-width: 78%;
+
+            word-wrap: break-word;
+
+            font-size: 0.93rem;
+
+            box-shadow: 0 4px 12px rgba(46, 125, 50, .25);
+
+            line-height: 1.5;
+
+        }
+
+        .s-msg-bot {
+
+            background: #fff;
+
+            padding: 12px 14px;
+
+            border-radius: 4px 20px 20px 20px;
+
+            align-self: flex-start;
+
+            max-width: 85%;
+
+            border: 1px solid #e8f5e9;
+
+            display: flex;
+
+            gap: 10px;
+
+            box-shadow: 0 3px 12px rgba(0, 0, 0, .07);
+
+            font-size: 0.93rem;
+
+            line-height: 1.55;
+
+        }
+
+        .s-bot-avatar {
+
+            width: 30px;
+
+            height: 30px;
+
+            min-width: 30px;
+
+            background: linear-gradient(135deg, #1b5e20, #43a047);
+
+            color: white;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-weight: 800;
+
+            font-size: 0.85rem;
+
+            flex-shrink: 0;
+
+            box-shadow: 0 2px 8px rgba(46, 125, 50, .3);
+
+        }
+
+        .s-msg-time {
+
+            font-size: 0.62rem;
+
+            color: rgba(255, 255, 255, .65);
+
+            margin-top: 4px;
+
+            display: block;
+
+            text-align: right;
+
+        }
+
+        .s-msg-bot .s-msg-time {
+
+            color: #bbb;
+
+            text-align: left;
+
+        }
+
+        .sakhi-input-area {
+
+            padding: 12px 14px;
+
+            background: #fff;
+
+            border-top: 1px solid rgba(0, 0, 0, .06);
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            gap: 8px;
+
+            flex-shrink: 0;
+
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, .04);
+
+        }
+
+        .sakhi-text-row {
+
+            display: flex;
+
+            gap: 8px;
+
+            width: 100%;
+
+            align-items: center;
+
+        }
+
+        #sakhi-text-input {
+
+            flex: 1;
+
+            padding: 10px 18px;
+
+            border-radius: 24px;
+
+            border: 1.5px solid #e0e0e0;
+
+            font-family: 'Outfit', sans-serif;
+
+            font-size: .93rem;
+
+            outline: none;
+
+            transition: border-color .2s, box-shadow .2s;
+
+            background: #fafafa;
+
+        }
+
+        #sakhi-text-input:focus {
+
+            border-color: #4caf50;
+
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, .12);
+
+            background: #fff;
+
+        }
+
+        #sakhi-text-input::placeholder {
+
+            color: #bbb;
+
+        }
+
+        #sakhi-send-btn {
+
+            width: 40px;
+
+            height: 40px;
+
+            border-radius: 50%;
+
+            border: none;
+
+            background: linear-gradient(135deg, #2e7d32, #66bb6a);
+
+            color: #fff;
+
+            font-size: 1.1rem;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            box-shadow: 0 3px 10px rgba(46, 125, 50, .35);
+
+            transition: transform .2s, box-shadow .2s;
+
+            flex-shrink: 0;
+
+        }
+
+        #sakhi-send-btn:hover {
+
+            transform: scale(1.1);
+
+        }
+
+        .sakhi-mic-row {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            width: 100%;
+
+            justify-content: center;
+
+        }
+
+        .sakhi-mic {
+
+            width: 62px;
+
+            height: 62px;
+
+            border-radius: 50%;
+
+            border: none;
+
+            background: linear-gradient(135deg, #1b5e20, #43a047);
+
+            color: white;
+
+            font-size: 1.7rem;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            box-shadow: 0 6px 20px rgba(46, 125, 50, .4);
+
+            transition: all 0.25s ease;
+
+        }
+
+        .sakhi-mic:active {
+
+            transform: scale(0.92);
+
+        }
+
+        .sakhi-mic.recording {
+
+            background: linear-gradient(135deg, #b71c1c, #e53935);
+
+            animation: micPulse 1.2s ease-in-out infinite;
+
+        }
+
+        @keyframes micPulse {
+
+            0% {
+
+                box-shadow: 0 0 0 0 rgba(229, 57, 53, .55);
+
+            }
+
+            70% {
+
+                box-shadow: 0 0 0 18px rgba(229, 57, 53, 0);
+
+            }
+
+            100% {
+
+                box-shadow: 0 0 0 0 rgba(229, 57, 53, 0);
+
+            }
+
+        }
+
+        .sakhi-status {
+
+            font-size: 0.78rem;
+
+            color: #888;
+
+            text-align: center;
+
+            height: 16px;
+
+            font-weight: 500;
+
+            letter-spacing: .2px;
+
+        }
+
+        .sakhi-status.listening {
+
+            color: #e53935;
+
+            font-weight: 700;
+
+        }
+
+        .sakhi-status.sending {
+
+            color: #ff6f00;
+
+            font-weight: 600;
+
+        }
+
+        .streaming-dots {
+
+            display: inline-block;
+
+            margin-left: 4px;
+
+        }
+
+        .streaming-dots span {
+
+            display: inline-block;
+
+            width: 5px;
+
+            height: 5px;
+
+            background: #4caf50;
+
+            border-radius: 50%;
+
+            margin: 0 2px;
+
+            animation: bounce 1.4s infinite ease-in-out both;
+
+        }
+
+        .streaming-dots span:nth-child(1) {
+
+            animation-delay: -0.32s;
+
+        }
+
+        .streaming-dots span:nth-child(2) {
+
+            animation-delay: -0.16s;
+
+        }
+
+        @keyframes bounce {
+
+            0%,
+
+            80%,
+
+            100% {
+
+                transform: scale(0)
+            }
+
+            40% {
+
+                transform: scale(1)
+            }
+
+        }
+
+        /* ─── MOBILE CHATBOT — BOTTOM SHEET ─── */
+
+        @media (max-width: 600px) {
+
+            .sakhi-window {
+
+                bottom: 0 !important;
+
+                right: 0 !important;
+
+                left: 0 !important;
+
+                top: auto !important;
+
+                width: 100% !important;
+
+                max-width: 100% !important;
+
+                height: 72vh !important;
+
+                max-height: 72vh !important;
+
+                border-radius: 20px 20px 0 0 !important;
+
+                transform: translateY(100%) scale(1) !important;
+
+            }
+
+            .sakhi-window.visible {
+
+                transform: translateY(0) scale(1) !important;
+
+            }
+
+            .sakhi-fab {
+
+                bottom: 15px;
+
+                right: 15px;
+
+                width: 54px;
+
+                height: 54px;
+
+            }
+
+            /* On mobile: inline mic inside the text row */
+
+            .sakhi-mic-row {
+
+                display: none !important;
+
+            }
+
+            .sakhi-text-row {
+
+                gap: 6px;
+
+            }
+
+            .sakhi-mobile-mic {
+
+                display: flex !important;
+
+            }
+
+        }
+
+        /* Always hidden on desktop */
+
+        .sakhi-mobile-mic {
+
+            display: none;
+
+        }
+
+        .sakhi-header {
+
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+
+            color: white;
+
+            padding: 12px 14px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            flex-shrink: 0;
+
+            border-radius: 20px 20px 0 0;
+
+            /* Immune to Google Translate font-tag injection */
+
+            gap: 8px;
+
+        }
+
+        .sakhi-header-title {
+
+            font-weight: 800;
+
+            font-size: 1.05rem;
+
+            letter-spacing: .3px;
+
+            font-family: 'Outfit', sans-serif;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            white-space: nowrap;
+
+            /* prevent text wrap on translation */
+
+            flex-shrink: 0;
+
+        }
+
+        .sakhi-header-controls {
+
+            display: flex;
+
+            gap: 4px;
+
+            align-items: center;
+
+            flex-shrink: 0;
+
+            /* never shrink, even when GT wraps title text */
+
+            margin-left: auto;
+
+        }
+
+        .sakhi-header-controls select {
+
+            padding: 4px 8px;
+
+            border-radius: 8px;
+
+            border: none;
+
+            font-size: 0.78rem;
+
+            background: rgba(255, 255, 255, .2);
+
+            color: #fff;
+
+            cursor: pointer;
+
+            outline: none;
+
+        }
+
+        .sakhi-header-controls select option {
+
+            background: #2e7d32;
+
+        }
+
+        .sakhi-header-controls button {
+
+            background: rgba(255, 255, 255, .18);
+
+            border: none;
+
+            color: white;
+
+            padding: 5px 10px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-size: 0.9rem;
+
+            transition: background .2s;
+
+        }
+
+        .sakhi-header-controls button:hover {
+
+            background: rgba(255, 255, 255, .3);
+
+        }
+
+        /* ─── SAKHI WINDOW ─── */
+
+        .sakhi-window {
+
+            position: fixed;
+
+            bottom: 90px;
+
+            right: 20px;
+
+            width: 360px;
+
+            max-width: calc(100vw - 24px);
+
+            height: 540px;
+
+            max-height: calc(100vh - 120px);
+
+            border-radius: 20px;
+
+            box-shadow: 0 20px 64px rgba(0, 0, 0, .25), 0 0 0 1px rgba(255, 255, 255, .08);
+
+            display: flex;
+
+            flex-direction: column;
+
+            z-index: 8999;
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            transform: translateY(16px) scale(0.97);
+
+            transition: opacity .25s ease, transform .25s ease;
+
+            overflow: hidden;
+
+            backdrop-filter: blur(4px);
+
+        }
+
+        .sakhi-window.visible {
+
+            opacity: 1;
+
+            pointer-events: all;
+
+            transform: translateY(0) scale(1);
+
+        }
+
+        /* ─── FAB BUTTON ─── */
+
+        .sakhi-fab {
+
+            position: fixed;
+
+            bottom: 22px;
+
+            right: 20px;
+
+            width: 60px;
+
+            height: 60px;
+
+            border-radius: 50%;
+
+            background: linear-gradient(135deg, #1b5e20, #43a047);
+
+            border: none;
+
+            color: white;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            box-shadow: 0 6px 24px rgba(46, 125, 50, .45);
+
+            z-index: 9000;
+
+            transition: transform .25s ease, box-shadow .25s ease;
+
+        }
+
+        .sakhi-fab:hover {
+
+            transform: scale(1.1);
+
+            box-shadow: 0 10px 32px rgba(46, 125, 50, .55);
+
+        }
+
+        .sakhi-fab.open {
+
+            transform: rotate(0deg);
+
+        }
+
+        /* --- GOOGLE TRANSLATE FIXES --- */
+
+        /* Only hide tooltips and highlights. DO NOT hide the banner itself. */
+
+        .goog-tooltip {
+
+            display: none !important;
+
+        }
+
+        .goog-tooltip:hover {
+
+            display: none !important;
+
+        }
+
+        .goog-text-highlight {
+
+            background-color: transparent !important;
+
+            box-shadow: none !important;
+
+        }
+
+        font {
+
+            background-color: transparent !important;
+
+            box-shadow: none !important;
+
+        }
+    </style>
+
+    {% block styles %}{% endblock %}
+
+</head>
+
+<body>
+
+    <div id="google_translate_element" style="display:none;"></div>
+
+    <nav class="navbar" id="mainNavbar">
+
+        <a class="logo notranslate" href="{% url 'index' %}">
+
+            <img src="{% static 'images/logo.png' %}" alt="Logo"
+                style="height: 35px; vertical-align: middle; margin-right: 8px;">
+
+            Krishi Sakhi
+
+        </a>
+
+        <div class="nav-links-desktop">
+
+            <a href="{% url 'index' %}">Home</a>
+
+            <a href="{% url 'analyze_field_dashboard' %}">Analyze</a>
+
+            <a href="{% url 'crop_prices' %}">Prices</a>
+
+            <a href="{% url 'schemes' %}">Schemes</a>
+
+            <a href="{% url 'weather' %}">Weather</a>
+
+            <a href="{% url 'marketplace' %}">&#x1F3AA; Market</a>
+
+        </div>
+
+        <div class="nav-right-group">
+
+            <div class="nav-auth-icons">
+
+                {% if user.is_authenticated %}
+
+                <div class="language-menu notranslate">
+
+                    <div class="lang-icon" style="font-size: 1.4rem; color: white;">🌐</div>
+
+                    <div class="dropdown-content">
+
+                        <a href="#" onclick="switchLanguage('en'); return false;">English</a>
+
+                        <a href="#" onclick="switchLanguage('hi'); return false;">हिंदी (Hindi)</a>
+
+                        <a href="#" onclick="switchLanguage('ta'); return false;">தமிழ் (Tamil)</a>
+
+                        <a href="#" onclick="switchLanguage('te'); return false;">తెలుగు (Telugu)</a>
+
+                        <a href="#" onclick="switchLanguage('kn'); return false;">ಕನ್ನಡ (Kannada)</a>
+
+                    </div>
+
+                </div>
+
+                <div class="profile-menu">
+
+                    <div class="profile-pic"
+                        style="color: #2c5e2e; background: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #a7d3a6;">
+
+                        {{ user.username|first|upper|default:'K' }}
+
+                    </div>
+
+                    <div class="dropdown-content">
+
+                        <div
+                            style="padding: 10px; background: #f9f9f9; border-bottom: 1px solid #eee; font-size:0.9rem;">
+
+                            <strong>{{ user.first_name|default:user.username }}</strong>
+
+                        </div>
+
+                        <a href="{% url 'profile' %}">Profile</a>
+
+                        <a href="{% url 'personalize' %}">My Farm</a>
+
+                        <a href="{% url 'history' %}">History</a>
+
+                        <a href="{% url 'logout' %}" style="color: red !important;">Logout</a>
+
+                    </div>
+
+                </div>
+
+                {% else %}
+
+                <a href="{% url 'login' %}"
+                    style="color:white; border:1px solid white; padding:4px 12px; border-radius:15px; text-decoration:none; font-size:0.9rem;">Login</a>
+
+                {% endif %}
+
+            </div>
+
+            <div class="hamburger notranslate" onclick="toggleMobileMenu()">☰</div>
+
+        </div>
+
+        <div class="nav-links-mobile" id="mobileMenu">
+
+            <a href="{% url 'index' %}">🏠 Home</a>
+
+            <a href="{% url 'analyze_field_dashboard' %}">🧠 Analyze Field</a>
+
+            <a href="{% url 'crop_prices' %}">💰 Market Prices</a>
+
+            <a href="{% url 'schemes' %}">📜 Schemes</a>
+
+            <a href="{% url 'weather' %}">☁️ Weather</a>
+
+            <a href="{% url 'marketplace' %}">&#x1F3AA; Market</a>
+
+        </div>
+
+    </nav>
+
+    <div class="content-wrapper" style="width: 100%;">
+
+        {% block content %}{% endblock %}
+
+    </div>
+
+    <!-- FLOATING CHATBOT -->
+
+    <button class="sakhi-fab notranslate" id="sakhi-fab" onclick="toggleChat()" aria-label="Open Sakhi Chatbot">
+
+        <svg id="fab-icon-chat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="28"
+            height="28" style="display:block;">
+
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+
+        </svg>
+
+        <svg id="fab-icon-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="28"
+            height="28" style="display:none;">
+
+            <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+
+        </svg>
+
+    </button>
+
+    <div class="sakhi-window" id="sakhi-window">
+
+        <div class="sakhi-header" id="sakhi-header">
+
+            <span class="sakhi-header-title notranslate">
+
+                <span
+                    style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#69f0ae;margin-right:3px;box-shadow:0 0 5px #69f0ae;"></span>
+
+                Sakhi
+
+            </span>
+
+            <div class="sakhi-header-controls notranslate">
+
+                <select id="lang-select" class="notranslate">
+
+                    <option value="kn-IN">Kannada</option>
+
+                    <option value="hi-IN">Hindi</option>
+
+                    <option value="te-IN">Telugu</option>
+
+                    <option value="ta-IN">Tamil</option>
+
+                    <option value="mr-IN">Marathi</option>
+
+                    <option value="en-US">English</option>
+
+                </select>
+
+                <button id="stop-speech-btn" title="Stop Speaking">&#x1F507;</button>
+
+                <button onclick="toggleChat()" title="Close Chat"
+                    style="font-weight:bold; background:none; font-size:1.1rem; padding:0 4px;">&#x2715;</button>
+
+            </div>
+
+        </div>
+
+        <div class="sakhi-messages" id="sakhi-messages">
+
+            <div class="s-msg-bot">
+
+                <div class="s-bot-avatar">&#x1F33E;</div>
+
+                <div>
+
+                    <span>Namaste! I&#x27;m <strong>Sakhi</strong> &#x1F331; &mdash; your AI farming assistant. Ask me
+
+                        about crop diseases, weather, or market prices!</span>
+
+                    <span class="s-msg-time">Just now</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Quick-reply suggestion chips -->
+
+        <div id="sakhi-chips" translate="no"
+            style="padding:8px 10px 4px;display:flex;gap:6px;flex-wrap:wrap;background:#fff;border-top:1px solid rgba(0,0,0,.05);">
+
+            <button translate="no" onclick="quickReply(&#x27;&#x1F33E; My crop has yellow leaves&#x27;)"
+                style="padding:5px 11px;border-radius:16px;border:1.5px solid #c8e6c9;background:#f1f8e9;color:#2e7d32;font-size:0.75rem;cursor:pointer;font-weight:600;">&#x1F33E;
+
+                Yellow leaves</button>
+
+            <button translate="no" onclick="quickReply(&#x27;&#x1F4B0; What is the market price today?&#x27;)"
+                style="padding:5px 11px;border-radius:16px;border:1.5px solid #c8e6c9;background:#f1f8e9;color:#2e7d32;font-size:0.75rem;cursor:pointer;font-weight:600;">&#x1F4B0;
+
+                Market price</button>
+
+            <button translate="no" onclick="quickReply(&#x27;&#x1F327;&#xFE0F; Will it rain this week?&#x27;)"
+                style="padding:5px 11px;border-radius:16px;border:1.5px solid #c8e6c9;background:#f1f8e9;color:#2e7d32;font-size:0.75rem;cursor:pointer;font-weight:600;">&#x1F327;&#xFE0F;
+
+                Rain forecast</button>
+
+            <button translate="no" onclick="quickReply(&#x27;&#x1F41B; How to treat pest infestation?&#x27;)"
+                style="padding:5px 11px;border-radius:16px;border:1.5px solid #c8e6c9;background:#f1f8e9;color:#2e7d32;font-size:0.75rem;cursor:pointer;font-weight:600;">&#x1F41B;
+
+                Pest control</button>
+
+        </div>
+
+        <div class="sakhi-input-area">
+
+            <div class="sakhi-text-row">
+
+                <input type="text" id="sakhi-text-input" placeholder="Ask Sakhi anything&#x2026;">
+
+                <button id="sakhi-send-btn" title="Send">&#x27A4;</button>
+
+            </div>
+
+            <div class="sakhi-mic-row">
+
+                <button class="sakhi-mic" id="sakhi-mic" title="Tap to speak">&#x1F3A4;</button>
+
+            </div>
+
+            <div class="sakhi-status" id="sakhi-status">Tap &#x1F3A4; to speak</div>
+
+        </div>
+
+    </div>
+
+    <!-- GLOBAL SPOTLIGHT TOUR ELEMENTS -->
+
+    <div id="tour-spotlight"></div>
+
+    <div id="tour-tooltip">
+
+        <div class="tt-title" id="ttTitle"></div>
+
+        <div class="tt-desc" id="ttDesc"></div>
+
+        <div class="tt-buttons">
+
+            <span class="tt-skip" onclick="endTour()">Skip</span>
+
+            <button class="tt-next" id="ttBtn" onclick="nextStep()">Next</button>
+
+        </div>
+
+    </div>
+
+    <!-- Floating Help Button -->
+
+    <button class="help-tour-btn notranslate" onclick="startPageTour()" title="Help Tour"
+        aria-label="Help Tour">❓</button>
+
+    {% block scripts %}{% endblock %}
+
+    <script type="text/javascript">
+
+        function toggleMobileMenu() {
+
+            document.getElementById('mobileMenu').classList.toggle('active');
+
+        }
+
+        function googleTranslateElementInit() {
+
+            new google.translate.TranslateElement({
+
+                pageLanguage: 'en',
+
+                includedLanguages: 'en,hi,ta,te,kn',
+
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+
+                autoDisplay: false
+
+            }, 'google_translate_element');
+
+        }
+
+        // --- ROBUST FIXED-ELEMENT SHIFT FOR GOOGLE TRANSLATE ---
+
+        // Google Translate injects a banner that shifts body/html top.
+
+        // We need to push ALL fixed-position elements down by that amount.
+
+        function adjustNavbar() {
+
+            const navbar = document.getElementById('mainNavbar');
+
+            const fab = document.getElementById('sakhi-fab');
+
+            const win = document.getElementById('sakhi-window');
+
+            const helpBtn = document.querySelector('.help-tour-btn');
+
+            const banner = document.querySelector('.goog-te-banner-frame');
+
+            const bodyStyle = window.getComputedStyle(document.body);
+
+            const htmlStyle = window.getComputedStyle(document.documentElement);
+
+            let shift = 0;
+
+            if (banner && banner.offsetHeight > 0) {
+
+                shift = banner.offsetHeight;
+
+            }
+
+            if (shift === 0) {
+
+                shift = Math.abs(parseFloat(bodyStyle.top) || parseFloat(htmlStyle.top) ||
+
+                    parseFloat(bodyStyle.marginTop) || parseFloat(htmlStyle.marginTop) || 0);
+
+            }
+
+            // Store as CSS variable for anything that needs it
+
+            document.documentElement.style.setProperty('--gt-banner-h', shift + 'px');
+
+            // Shift navbar
+
+            if (navbar) navbar.style.top = shift + 'px';
+
+            // Shift chatbot FAB (it's position:fixed bottom — no shift needed for bottom-anchored)
+
+            // But the chatbot WINDOW is top-half for large screens and needs adjustment
+
+            if (win && win.classList.contains('open')) {
+
+                win.style.top = (shift + 10) + 'px';
+
+            }
+
+            // Shift help tour button (top-right corner)
+
+            if (helpBtn) helpBtn.style.top = (shift + 80) + 'px';
+
+        }
+
+        // Check frequently for changes (handles GT banner show/hide)
+
+        setInterval(adjustNavbar, 300);
+
+    </script>
+
+    <script type="text/javascript"
+        src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+
+        function switchLanguage(langCode) {
+
+            // 1. Set the googtrans cookie with 1 year expiry (required for GT to activate on reload)
+
+            var maxAge = 60 * 60 * 24 * 365;
+
+            var cookieVal = '/en/' + langCode;
+
+            var host = window.location.hostname;
+
+            // Set on current path, root path, and with/without leading dot for subdomain support
+
+            document.cookie = 'googtrans=' + cookieVal + '; max-age=' + maxAge + '; path=/';
+
+            document.cookie = 'googtrans=' + cookieVal + '; max-age=' + maxAge + '; path=/; domain=' + host;
+
+            document.cookie = 'googtrans=' + cookieVal + '; max-age=' + maxAge + '; path=/; domain=.' + host;
+
+            // 2. Save language preference to user profile (async, fire-and-forget)
+
+            var csrfToken = '{{ csrf_token }}';
+
+            fetch('{% url "personalize" %}', {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrfToken },
+
+                body: 'language=' + langCode
+
+            }).then(function () {
+
+                // 3. Reload — Google Translate will read the fresh cookie and translate the page
+
+                window.location.reload(true);
+
+            }).catch(function () {
+
+                window.location.reload(true);
+
+            });
+
+        }
+
+        // Auto-activate Google Translate on page load based on cookie
+
+        (function activateGoogleTranslate() {
+
+            function getGTLang() {
+
+                var m = document.cookie.match(/googtrans=\/en\/(\w+)/);
+
+                return m ? m[1] : null;
+
+            }
+
+            function doTranslate(attempts) {
+
+                if (attempts <= 0) return;
+
+                var lang = getGTLang();
+
+                if (!lang || lang === 'en') return;
+
+                // Try Google Translate's internal combo select
+
+                var sel = document.querySelector('.goog-te-combo') ||
+
+                    document.querySelector('select.goog-te-combo') ||
+
+                    document.querySelector('#\\:1\\.menuButton select');
+
+                if (sel) {
+
+                    sel.value = lang;
+
+                    sel.dispatchEvent(new Event('change'));
+
+                } else {
+
+                    // GT not ready yet, retry
+
+                    setTimeout(function () { doTranslate(attempts - 1); }, 600);
+
+                }
+
+            }
+
+            // Start polling after a short delay to let GT script initialize
+
+            setTimeout(function () { doTranslate(8); }, 1000);
+
+        })();
+
+        // --- FLOATING CHATBOT JS ---
+
+        const fab = document.getElementById('sakhi-fab');
+
+        const chatWindow = document.getElementById('sakhi-window');
+
+        let chatOpen = false;
+
+        function toggleChat() {
+
+            chatOpen = !chatOpen;
+
+            chatWindow.classList.toggle('visible', chatOpen);
+
+            fab.classList.toggle('open', chatOpen);
+
+            document.getElementById('fab-icon-chat').style.display = chatOpen ? 'none' : 'block';
+
+            document.getElementById('fab-icon-close').style.display = chatOpen ? 'block' : 'none';
+
+            if (chatOpen && window.innerWidth <= 500) {
+
+                document.body.style.overflow = 'hidden'; // lock bg scroll
+
+            } else {
+
+                document.body.style.overflow = '';
+
+            }
+
+        }
+
+        const messagesBox = document.getElementById('sakhi-messages');
+
+        const micBtn = document.getElementById('sakhi-mic');
+
+        const statusEl = document.getElementById('sakhi-status');
+
+        const langSelect = document.getElementById('lang-select');
+
+        const stopSpeechBtn = document.getElementById('stop-speech-btn');
+
+        const textInput = document.getElementById('sakhi-text-input');
+
+        const sendBtn = document.getElementById('sakhi-send-btn');
+
+        let isSpeaking = false;
+
+        let recognition;
+
+        textInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(textInput.value.trim()); });
+
+        sendBtn.addEventListener('click', () => sendMessage(textInput.value.trim()));
+
+        function quickReply(text) {
+
+            // Hide chips after first use
+
+            const chips = document.getElementById('sakhi-chips');
+
+            if (chips) chips.style.display = 'none';
+
+            sendMessage(text);
+
+        }
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            recognition = new SR();
+
+            recognition.continuous = false;
+
+            recognition.interimResults = false;
+
+            micBtn.addEventListener('click', () => {
+
+                if (isSpeaking) { window.speechSynthesis.cancel(); isSpeaking = false; }
+
+                micBtn.classList.add('recording');
+
+                statusEl.textContent = '🔴 Listening...';
+
+                statusEl.className = 'sakhi-status listening';
+
+                recognition.lang = langSelect.value;
+
+                try { recognition.start(); } catch (e) { }
+
+            });
+
+            recognition.onresult = (event) => {
+
+                const transcript = event.results[0][0].transcript;
+
+                micBtn.classList.remove('recording');
+
+                statusEl.textContent = '📤 Sending...';
+
+                statusEl.className = 'sakhi-status sending';
+
+                sendMessage(transcript);
+
+            };
+
+            recognition.onerror = () => {
+
+                micBtn.classList.remove('recording');
+
+                statusEl.textContent = 'Could not hear. Tap 🎤 again.';
+
+                statusEl.className = 'sakhi-status';
+
+            };
+
+            recognition.onend = () => { micBtn.classList.remove('recording'); };
+
+        } else {
+
+            micBtn.style.display = 'none';
+
+        }
+
+        // --- TRUE STREAMING IMPLEMENTATION ---
+
+        async function sendMessage(text) {
+
+            if (!text) return;
+
+            textInput.value = '';
+
+            addMsg(text, 'user');
+
+            statusEl.textContent = '🤔 Thinking...';
+
+            statusEl.className = 'sakhi-status sending';
+
+            const csrfToken = '{{ csrf_token }}';
+
+            const botId = addMsg('', 'bot'); // Create empty bubble
+
+            const contentEl = document.getElementById(botId).querySelector('.s-bot-text');
+
+            const dotsHtml = '<span class="streaming-dots"><span></span><span></span><span></span></span>';
+
+            contentEl.innerHTML = dotsHtml;
+
+            let accumulatedText = "";
+
+            try {
+
+                const response = await fetch('{% url "chatbot_api" %}', {
+
+                    method: 'POST',
+
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+
+                    body: JSON.stringify({ message: text, lang: langSelect.value })
+
+                });
+
+                const reader = response.body.getReader();
+
+                const decoder = new TextDecoder('utf-8');
+
+                while (true) {
+
+                    const { done, value } = await reader.read();
+
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+
+                    accumulatedText += chunk;
+
+                    // Check for market redirect signal
+
+                    if (accumulatedText.includes('__REDIRECT__:')) {
+
+                        const match = accumulatedText.match(/__REDIRECT__:([^\s]+)/);
+
+                        if (match) {
+
+                            const redirectUrl = match[1];
+
+                            const cleanMsg = accumulatedText.replace(/__REDIRECT__:[^\s]+/, '').trim();
+
+                            contentEl.innerHTML = cleanMsg || 'Taking you to the Sales Hub...';
+
+                            setTimeout(() => window.location.href = redirectUrl, 1800);
+
+                            break;
+
+                        }
+
+                    }
+
+                    // Live UI update without destroying cursor
+
+                    const clean = accumulatedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^\*\s(.*)$/gm, '<br>• $1');
+
+                    contentEl.innerHTML = clean + dotsHtml;
+
+                }  // end while
+
+                // Final render - strip streaming dots and redirect markers
+                const finalText = accumulatedText.replace(/__REDIRECT__:[^\s]+/g, '').trim();
+                const finalClean = finalText
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/^\* (.*)$/gm, '<br>&bull; $1');
+                contentEl.innerHTML = finalClean;
+
+                statusEl.textContent = 'Tap \uD83C\uDFA4 to speak';
+                statusEl.className = 'sakhi-status';
+
+                // Async TTS so it never blocks UI thread
+                setTimeout(function() {
+                    try { speakText(finalText, langSelect.value); }
+                    catch(e) { console.warn('TTS error:', e); }
+                }, 80);
+
+            } catch (err) {
+                console.error('Chatbot error:', err);
+                const cur = contentEl.innerHTML.replace(/<span class="streaming-dots">.*?<\/span>/g, '');
+                contentEl.innerHTML = cur || '\u26A0\uFE0F Network error. Check your connection.';
+                statusEl.textContent = 'Tap \uD83C\uDFA4 to speak';
+                statusEl.className = 'sakhi-status';
+            }
+        }
+
+        function addMsg(text, sender) {
+
+                        const div = document.createElement('div');
+
+                        const id = 'msg-' + Date.now() + Math.random().toString(36).slice(2, 5);
+
+                        div.id = id;
+
+                        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                        if (sender === 'user') {
+
+                            div.className = 's-msg-user';
+
+                            div.innerHTML = `${text}<span class="s-msg-time">${time}</span>`;
+
+                        } else {
+
+                            div.className = 's-msg-bot';
+
+                            div.innerHTML = `<div class="s-bot-avatar">S</div><div><span class="s-bot-text">${text}</span><span class="s-msg-time">${time}</span></div>`;
+
+                        }
+
+                        messagesBox.appendChild(div);
+
+                        messagesBox.scrollTo({ top: messagesBox.scrollHeight, behavior: 'smooth' });
+
+                        return id;
+
+                    }
+
+                    function speakText(text, lang) {
+
+                        if (!window.speechSynthesis || !text) return;
+
+                        window.speechSynthesis.cancel();
+
+                        isSpeaking = true;
+
+                        const cleanText = text.replace(/[\*#\u200b]/g, '').trim();
+
+                        if (!cleanText) { isSpeaking = false; return; }
+
+                        function pickBestVoice(voices, targetLang) {
+
+                            // Prefer female voices in the target language (Indian female first)
+
+                            const lc = (targetLang || 'hi-IN').toLowerCase();
+
+                            const langShort = lc.split('-')[0];
+
+                            const femalePriority = [
+
+                                v => v.lang.toLowerCase() === lc && /female|woman|girl/i.test(v.name),
+
+                                v => v.lang.toLowerCase().startsWith(langShort) && /female|woman|girl/i.test(v.name),
+
+                                v => v.lang.toLowerCase() === lc,
+
+                                v => v.lang.toLowerCase().startsWith(langShort) && v.lang.includes('IN'),
+
+                                v => v.lang.toLowerCase().startsWith(langShort),
+
+                                v => v.lang === 'en-IN',  // Indian English as last resort
+
+                            ];
+
+                            for (const fn of femalePriority) {
+
+                                const match = voices.find(fn);
+
+                                if (match) return match;
+
+                            }
+
+                            return null;
+
+                        }
+
+                        function doSpeak() {
+
+                            const utterance = new SpeechSynthesisUtterance(cleanText);
+
+                            utterance.lang = lang || langSelect.value || 'kn-IN';
+
+                            utterance.rate = 0.88;
+
+                            utterance.pitch = 1.1; // slightly higher → more natural female pitch
+
+                            const voices = window.speechSynthesis.getVoices();
+
+                            if (voices.length > 0) {
+
+                                utterance.voice = pickBestVoice(voices, utterance.lang);
+
+                            }
+
+                            utterance.onend = () => { isSpeaking = false; };
+
+                            window.speechSynthesis.speak(utterance);
+
+                        }
+
+                        const voices = window.speechSynthesis.getVoices();
+
+                        if (voices.length > 0) {
+
+                            doSpeak();
+
+                        } else {
+
+                            window.speechSynthesis.onvoiceschanged = () => {
+
+                                window.speechSynthesis.onvoiceschanged = null;
+
+                                doSpeak();
+
+                            };
+
+                            setTimeout(() => { if (window.speechSynthesis.getVoices().length === 0) { doSpeak(); } }, 1500);
+
+                        }
+
+                    }
+
+                    stopSpeechBtn.addEventListener('click', () => { window.speechSynthesis.cancel(); isSpeaking = false; });
+
+                    // Preload voices
+
+                    if (window.speechSynthesis) { window.speechSynthesis.getVoices(); }
+
+                    // Set default chatbot language from user profile or auto-detect
+
+                    (function setDefaultChatLang() {
+
+                        const profileLang = "{% if user.is_authenticated %}{% with user.userprofile as p %}{{ p.language|default:'hi' }}{% endwith %}{% endif %}";
+
+                        const autLang = localStorage.getItem('sakhiManualLang') || localStorage.getItem('sakhiAutoLang') || profileLang || 'hi';
+
+                        const bcp = { 'hi': 'hi-IN', 'kn': 'kn-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN', 'en': 'en-US' };
+
+                        const bcpVal = bcp[autLang] || 'hi-IN';
+
+                        if (langSelect) {
+
+                            langSelect.value = bcpVal;
+
+                            if (!langSelect.value) langSelect.value = 'hi-IN'; // fallback if option doesn't exist
+
+                        }
+
+                    })();
+
+    </script>
+
+    <!-- GLOBAL speakLocalText ENGINE + TOUR JS -->
+
+    <script>
+
+                    // --- CENTRAL VOICE ENGINE ---
+
+                    function getPageLang() {
+
+                        const manual = localStorage.getItem('sakhiManualLang');
+
+                        if (manual) return manual;
+
+                        const auto = localStorage.getItem('sakhiAutoLang');
+
+                        if (auto) return auto;
+
+                        const match = document.cookie.match(/googtrans=\/en\/(\w+)/);
+
+                        if (match && match[1]) return match[1];
+
+                        return 'en';
+
+                    }
+
+                    const LANG_MAP = { 'hi': 'hi-IN', 'kn': 'kn-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN', 'en': 'en-IN' };
+
+                    function speakLocalText(text, bcp47Override) {
+
+                        if (!window.speechSynthesis || !text) return;
+
+                        // Cancel any current speech first
+
+                        window.speechSynthesis.cancel();
+
+                        const lang = getPageLang();
+
+                        const bcp47 = bcp47Override || LANG_MAP[lang] || 'en-IN';
+
+                        const cleanText = text.replace(/[\*#\u200b]/g, '').trim();
+
+                        if (!cleanText) return;
+
+                        function doSpeak() {
+
+                            const utterance = new SpeechSynthesisUtterance(cleanText);
+
+                            utterance.lang = bcp47;
+
+                            utterance.rate = 0.92;
+
+                            const voices = window.speechSynthesis.getVoices();
+
+                            if (voices.length > 0) {
+
+                                const exact = voices.find(v => v.lang === bcp47);
+
+                                const startsWith = voices.find(v => v.lang.startsWith(lang));
+
+                                const indianEn = voices.find(v => v.lang === 'en-IN');
+
+                                utterance.voice = exact || startsWith || indianEn || null;
+
+                            }
+
+                            // Speak directly — no extra cancel() here (that causes the 1-letter bug)
+
+                            window.speechSynthesis.speak(utterance);
+
+                        }
+
+                        // Poll every 100ms up to 20 attempts until voices are available
+
+                        let attempts = 0;
+
+                        function trySpeak() {
+
+                            if (window.speechSynthesis.getVoices().length > 0) {
+
+                                doSpeak();
+
+                            } else if (attempts < 20) {
+
+                                attempts++;
+
+                                setTimeout(trySpeak, 100);
+
+                            } else {
+
+                                doSpeak(); // speak with default voice as last resort
+
+                            }
+
+                        }
+
+                        trySpeak();
+
+                    }
+
+                    // --- GLOBAL SPOTLIGHT TOUR ---
+
+                    let _tourStep = 0;
+
+                    let _tourActive = false;
+
+                    function startPageTour() {
+
+                        if (!window.pageTourSteps || window.pageTourSteps.length === 0) return;
+
+                        _tourStep = 0;
+
+                        _tourActive = true;
+
+                        document.getElementById('tour-spotlight').style.opacity = '1';
+
+                        document.getElementById('tour-tooltip').style.opacity = '1';
+
+                        document.getElementById('tour-spotlight').classList.add('spotlight-active');
+
+                        document.body.style.overflow = 'hidden';
+
+                        showTourStep();
+
+                    }
+
+                    function showTourStep() {
+
+                        if (!window.pageTourSteps || _tourStep >= window.pageTourSteps.length) { endTour(); return; }
+
+                        const step = window.pageTourSteps[_tourStep];
+
+                        const lang = getPageLang();
+
+                        // Get localized text (fallback to en)
+
+                        const title = step['title_' + lang] || step.title;
+
+                        const desc = step['desc_' + lang] || step.desc;
+
+                        const targetEl = document.getElementById(step.target);
+
+                        const spotlight = document.getElementById('tour-spotlight');
+
+                        const tooltip = document.getElementById('tour-tooltip');
+
+                        if (!targetEl) { nextStep(); return; }
+
+                        // Scroll element into view
+
+                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        setTimeout(() => {
+
+                            const rect = targetEl.getBoundingClientRect();
+
+                            spotlight.style.width = (rect.width + 16) + 'px';
+
+                            spotlight.style.height = (rect.height + 16) + 'px';
+
+                            spotlight.style.top = (rect.top - 8) + 'px';
+
+                            spotlight.style.left = (rect.left - 8) + 'px';
+
+                            document.getElementById('ttTitle').innerText = title;
+
+                            document.getElementById('ttDesc').innerText = desc;
+
+                            // Position tooltip: prefer below element, else above, always clamped to viewport
+
+                            const TOOLTIP_W = 300;
+
+                            const TOOLTIP_H = 190; // approximate height incl. buttons
+
+                            const MARGIN = 12;
+
+                            const spaceBelow = window.innerHeight - rect.bottom;
+
+                            let candidateTop;
+
+                            if (spaceBelow >= TOOLTIP_H + MARGIN) {
+
+                                candidateTop = rect.bottom + MARGIN;
+
+                            } else if (rect.top >= TOOLTIP_H + MARGIN) {
+
+                                candidateTop = rect.top - TOOLTIP_H - MARGIN;
+
+                            } else {
+
+                                // Element takes most of the screen — place tooltip at bottom of viewport
+
+                                candidateTop = window.innerHeight - TOOLTIP_H - MARGIN;
+
+                            }
+
+                            // Clamp top so tooltip never goes off-screen vertically
+
+                            const clampedTop = Math.min(Math.max(MARGIN, candidateTop), window.innerHeight - TOOLTIP_H - MARGIN);
+
+                            // Clamp left so tooltip never overflows horizontally
+
+                            const idealLeft = Math.round(window.innerWidth / 2 - TOOLTIP_W / 2);
+
+                            const clampedLeft = Math.min(Math.max(MARGIN, idealLeft), window.innerWidth - TOOLTIP_W - MARGIN);
+
+                            tooltip.style.top = clampedTop + 'px';
+
+                            tooltip.style.left = clampedLeft + 'px';
+
+                            tooltip.style.width = TOOLTIP_W + 'px';
+
+                            // Button text
+
+                            const btn = document.getElementById('ttBtn');
+
+                            if (_tourStep === window.pageTourSteps.length - 1) {
+
+                                btn.innerText = 'Finish ✅';
+
+                            } else {
+
+                                const nextLabels = { 'hi': 'आगे →', 'kn': 'ಮುಂದೆ →', 'ta': 'அடுத்து →', 'te': 'తర్వాత →' };
+
+                                btn.innerText = nextLabels[lang] || 'Next →';
+
+                            }
+
+                            // Speak the step description — delay slightly so UI updates first
+
+                            setTimeout(() => speakLocalText(desc), 300);
+
+                        }, 600);
+
+                    }
+
+                    function nextStep() {
+
+                        if (_tourStep < (window.pageTourSteps || []).length - 1) {
+
+                            _tourStep++;
+
+                            showTourStep();
+
+                        } else {
+
+                            endTour();
+
+                        }
+
+                    }
+
+                    function endTour() {
+
+                        _tourActive = false;
+
+                        document.getElementById('tour-spotlight').style.opacity = '0';
+
+                        document.getElementById('tour-tooltip').style.opacity = '0';
+
+                        document.body.style.overflow = 'auto';
+
+                        window.speechSynthesis.cancel();
+
+                        setTimeout(() => {
+
+                            document.getElementById('tour-spotlight').classList.remove('spotlight-active');
+
+                        }, 500);
+
+                        // Mark this page's tour as seen
+
+                        localStorage.setItem('tourSeen_' + window.location.pathname, 'true');
+
+                    }
+
+                    // Auto-start tour — pre-warm voices first so step 1 has audio
+
+                    window.addEventListener('load', () => {
+
+                        // Kick-start voice loading immediately at page start
+
+                        if (window.speechSynthesis) {
+
+                            window.speechSynthesis.getVoices();
+
+                            window.speechSynthesis.onvoiceschanged = function () { window.speechSynthesis.onvoiceschanged = null; };
+
+                        }
+
+                        // Start tour after 3s (voices have extra time to load)
+
+                        setTimeout(function () {
+
+                            if (window.pageTourSteps && window.pageTourSteps.length > 0) {
+
+                                startPageTour();
+
+                            }
+
+                        }, 3000);
+
+                    });
+
+                    // Help button also starts tour
+
+                    document.querySelector('.help-tour-btn')?.addEventListener('click', () => {
+
+                        startPageTour();
+
+                    });
+
+                    // Handle resize during tour
+
+                    window.addEventListener('resize', () => {
+
+                        if (_tourActive) showTourStep();
+
+                    });
+
+    </script>
+
+</body>
+
+</html>

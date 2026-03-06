@@ -1,0 +1,36 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environment
+.env
+*.env
+
+# Django
+*.pyc
+db.sqlite3
+/static/
+/media/
+/field_videos/
+/predictions/
+
+# ML models (large binaries - commit separately if needed)
+*.pkl
+*.h5
+*.tflite
+*.keras
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Gemini Antigravity
+.gemini/
+
+# Temp
+/tmp/

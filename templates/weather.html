@@ -1,0 +1,912 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}🌦️ 15-Day Agri-Planner – Krishi Sakhi{% endblock %}
+
+{% block styles %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.88rem;
+        background: #f0f7f0;
+    }
+
+    .wp-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1rem 1rem 3rem;
+    }
+
+    /* HEAD */
+    .wp-head {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .wp-head h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1b5e20;
+        margin: 0;
+    }
+
+    .wp-head p {
+        color: #777;
+        font-size: .82rem;
+        margin: .25rem 0 0;
+    }
+
+    /* SEARCH */
+    .wp-search {
+        display: flex;
+        gap: .5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .wp-search input {
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 2px solid #ddd;
+        font-size: .9rem;
+        font-family: 'Outfit', sans-serif;
+        outline: none;
+        min-width: 200px;
+    }
+
+    .wp-search input:focus {
+        border-color: #2e7d32;
+    }
+
+    .wp-search button {
+        padding: 10px 18px;
+        border-radius: 10px;
+        background: #2e7d32;
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: .9rem;
+    }
+
+    /* VOICE READOUT */
+    .wp-voice-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .6rem;
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #1b5e20, #43a047);
+        color: #fff;
+        font-size: .9rem;
+        font-weight: 700;
+        cursor: pointer;
+        margin-bottom: .9rem;
+        box-shadow: 0 4px 14px rgba(27, 94, 32, .28);
+        transition: transform .2s;
+    }
+
+    .wp-voice-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* HERO */
+    .wp-hero {
+        background: linear-gradient(135deg, #1b5e20, #2e7d32);
+        border-radius: 18px;
+        padding: 1.3rem 1.8rem;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 6px 22px rgba(27, 94, 32, .25);
+    }
+
+    .wp-hero-city {
+        font-size: .9rem;
+        opacity: .8;
+    }
+
+    .wp-hero-temp {
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    .wp-hero-cond {
+        font-size: .82rem;
+        opacity: .82;
+        margin-top: .2rem;
+    }
+
+    .wp-hero-stats {
+        display: flex;
+        gap: 1.4rem;
+    }
+
+    .wp-stat .sv {
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+    .wp-stat .sl {
+        font-size: .7rem;
+        opacity: .8;
+    }
+
+    /* STATUS ROW */
+    .wp-status-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .9rem;
+        margin-bottom: 1rem;
+    }
+
+    @media(max-width: 580px) {
+        .wp-status-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .status-card {
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        display: flex;
+        align-items: flex-start;
+        gap: .8rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, .07);
+    }
+
+    .sc-safe {
+        background: #e8f5e9;
+        border: 2px solid #66bb6a;
+    }
+
+    .sc-unsafe {
+        background: #ffebee;
+        border: 2px solid #ef9a9a;
+    }
+
+    .sc-water {
+        background: #e3f2fd;
+        border: 2px solid #64b5f6;
+    }
+
+    .sc-skip {
+        background: #fff8e1;
+        border: 2px solid #ffca28;
+    }
+
+    .status-card .sc-icon {
+        font-size: 1.8rem;
+        flex-shrink: 0;
+    }
+
+    .status-card h3 {
+        font-size: .85rem;
+        font-weight: 700;
+        margin: 0 0 .2rem;
+    }
+
+    .status-card p {
+        font-size: .78rem;
+        color: #555;
+        line-height: 1.55;
+        margin: 0;
+    }
+
+    .badge {
+        display: inline-block;
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: .68rem;
+        font-weight: 700;
+        margin-bottom: .25rem;
+    }
+
+    .b-safe {
+        background: #2e7d32;
+        color: #fff;
+    }
+
+    .b-unsafe {
+        background: #c62828;
+        color: #fff;
+    }
+
+    .b-water {
+        background: #1565c0;
+        color: #fff;
+    }
+
+    .b-skip {
+        background: #ff8f00;
+        color: #fff;
+    }
+
+    /* ─── 15-DAY CALENDAR ─── */
+    .cal-section {
+        background: #fff;
+        border-radius: 18px;
+        padding: 1.4rem;
+        box-shadow: 0 3px 16px rgba(0, 0, 0, .07);
+        margin-bottom: 1rem;
+    }
+
+    .cal-section>h3 {
+        font-size: .95rem;
+        font-weight: 800;
+        color: #1b5e20;
+        margin-bottom: .9rem;
+    }
+
+    .cal-legend {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: .9rem;
+        font-size: .73rem;
+        color: #555;
+    }
+
+    .leg {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .leg-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .ld-today {
+        background: #1b5e20;
+    }
+
+    .ld-spray {
+        background: #66bb6a;
+    }
+
+    .ld-nospray {
+        background: #ef9a9a;
+    }
+
+    .ld-water {
+        background: #64b5f6;
+    }
+
+    /* 5 columns on desktop, fewer on mobile */
+    .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: .7rem;
+    }
+
+    @media(max-width: 750px) {
+        .cal-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media(max-width: 480px) {
+        .cal-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* BIGGER TILES */
+    .cal-cell {
+        border-radius: 14px;
+        border: 2px solid #e0e0e0;
+        padding: .9rem .8rem 1rem;
+        text-align: center;
+        cursor: default;
+        transition: box-shadow .2s, border-color .2s, transform .2s;
+        background: #fff;
+        position: relative;
+        overflow: visible;
+        min-height: 145px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: .15rem;
+    }
+
+    .cal-cell:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, .13);
+        transform: translateY(-3px);
+        z-index: 5;
+    }
+
+    .cal-cell.today-cell {
+        border-color: #1b5e20;
+        border-width: 2.5px;
+        background: #f1f8f1;
+    }
+
+    .cal-cell.spray-ok {
+        border-top: 4px solid #66bb6a;
+    }
+
+    .cal-cell.no-spray {
+        border-top: 4px solid #ef9a9a;
+    }
+
+    .cal-cell.water-day {
+        background: linear-gradient(180deg, #e8f4fd 0%, #fff 55%);
+    }
+
+    .cc-date {
+        font-size: .72rem;
+        font-weight: 700;
+        color: #777;
+        width: 100%;
+        text-align: left;
+    }
+
+    .cc-emoji {
+        font-size: 1.7rem;
+        margin: .1rem 0;
+    }
+
+    .cc-temp {
+        font-size: .82rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .cc-cond {
+        font-size: .72rem;
+        color: #888;
+        margin-bottom: .15rem;
+    }
+
+    .cc-task {
+        font-size: .73rem;
+        color: #444;
+        line-height: 1.4;
+        text-align: center;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .cc-badges {
+        display: flex;
+        gap: 3px;
+        justify-content: center;
+        margin-top: auto;
+        padding-top: .3rem;
+        flex-wrap: wrap;
+    }
+
+    .cc-badge {
+        font-size: .58rem;
+        font-weight: 700;
+        border-radius: 10px;
+        padding: 2px 6px;
+        display: inline-block;
+    }
+
+    .cb-today {
+        background: #1b5e20;
+        color: #fff;
+    }
+
+    .cb-spray {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+    }
+
+    .cb-water {
+        background: #e3f2fd;
+        color: #1565c0;
+        border: 1px solid #90caf9;
+    }
+
+    .cb-nospray {
+        background: #ffebee;
+        color: #c62828;
+        border: 1px solid #ef9a9a;
+    }
+
+    /* Tooltip */
+    .cc-tooltip {
+        display: none;
+        position: absolute;
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1b3a20;
+        color: #fff;
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-size: .72rem;
+        line-height: 1.5;
+        z-index: 100;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+        width: 180px;
+        white-space: normal;
+        pointer-events: none;
+    }
+
+    .cc-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: #1b3a20;
+    }
+
+    .cal-cell:hover .cc-tooltip {
+        display: block;
+    }
+
+    /* AI REPORT */
+    .ai-report-section {
+        background: linear-gradient(135deg, #1b5e20, #2e7d32);
+        border-radius: 18px;
+        padding: 1.6rem 2rem;
+        color: #fff;
+        box-shadow: 0 6px 24px rgba(27, 94, 32, .3);
+        margin-bottom: 1rem;
+    }
+
+    .ai-report-section h3 {
+        font-size: 1rem;
+        font-weight: 800;
+        margin-bottom: .8rem;
+    }
+
+    .ai-report-section p {
+        font-size: .86rem;
+        line-height: 1.75;
+        opacity: .95;
+    }
+
+    .report-tag {
+        display: inline-block;
+        background: rgba(255, 255, 255, .2);
+        border-radius: 20px;
+        padding: 2px 12px;
+        font-size: .72rem;
+        font-weight: 700;
+        margin-bottom: .8rem;
+    }
+
+    /* CARDS */
+    .wp-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.1rem 1.3rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, .06);
+        margin-bottom: .9rem;
+    }
+
+    .wp-card h3 {
+        font-size: .88rem;
+        font-weight: 700;
+        color: #1b5e20;
+        margin-bottom: .6rem;
+    }
+
+    .wp-card p {
+        font-size: .82rem;
+        color: #555;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .wp-card ul {
+        margin: 0 0 0 1.1rem;
+        padding: 0;
+    }
+
+    .wp-card li {
+        font-size: .82rem;
+        color: #555;
+        margin-bottom: .4rem;
+        line-height: 1.5;
+    }
+
+    .muted {
+        color: #aaa;
+        font-size: .75rem;
+    }
+
+    .error-box {
+        background: #ffebee;
+        border: 1.5px solid #ef9a9a;
+        border-radius: 10px;
+        padding: .8rem 1rem;
+        font-size: .82rem;
+        color: #c62828;
+        margin-bottom: .8rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wp-wrap">
+    <div class="wp-head">
+        <h1>🌦️ 15-Day Agri-Planner</h1>
+        <p>
+            Precision irrigation, spray scheduling &amp; farm calendar for
+            <strong>{{ data.city|default:"your city" }}</strong>
+        </p>
+    </div>
+
+    <form method="GET" class="wp-search">
+        <input type="text" name="city" value="{{ data.city|default:'Bengaluru' }}" placeholder="Enter your city…"
+            autocomplete="off">
+        <button type="submit">🔍 Search</button>
+    </form>
+
+    {% if error %}
+    <div class="error-box">⚠️ {{ error }} — Showing cached or estimated data.</div>
+    {% endif %}
+
+    <button class="wp-voice-btn" onclick="readWeatherPlan()">
+        🔊 Read My 15-Day Farming Plan Aloud
+    </button>
+
+    <!-- HERO CARD -->
+    <div class="wp-hero" id="wp-hero">
+        <div>
+            <div class="wp-hero-city">📍 {{ data.city|default:"Bengaluru" }}</div>
+            <div class="wp-hero-temp">{% if data.temperature %}{{ data.temperature }}{% else %}—{% endif %}</div>
+            <div class="wp-hero-cond">{{ data.condition|default:"Weather loading…" }}</div>
+        </div>
+        <div class="wp-hero-stats">
+            <div class="wp-stat">
+                <div class="sv">💧 {{ data.humidity|default:"—" }}</div>
+                <div class="sl">Humidity</div>
+            </div>
+            <div class="wp-stat">
+                <div class="sv">💨 {{ data.wind|default:"—" }}</div>
+                <div class="sl">Wind</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATUS CARDS -->
+    <div class="wp-status-row">
+        {% if data.spray_window %}
+        {% if data.spray_window.safe_today %}
+        <div class="status-card sc-safe" id="spray-card">
+            <div class="sc-icon">🟢</div>
+            <div>
+                <span class="badge b-safe">✅ Safe to Spray</span>
+                <h3>Safe Spray Window</h3>
+                <p><strong>Spray:</strong> {{ data.spray_window.safe }}<br>
+                    <strong>Avoid:</strong> {{ data.spray_window.unsafe }}<br>
+                    {{ data.spray_window.reason }}
+                </p>
+            </div>
+        </div>
+        {% else %}
+        <div class="status-card sc-unsafe" id="spray-card">
+            <div class="sc-icon">🔴</div>
+            <div>
+                <span class="badge b-unsafe">❌ Avoid Spraying</span>
+                <h3>Unsafe to Spray Today</h3>
+                <p>{{ data.spray_window.reason }}<br>
+                    Safe from: <strong>{{ data.spray_window.safe }}</strong></p>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        {% if data.irrigation_status %}
+        {% if data.irrigation_status.water_today %}
+        <div class="status-card sc-water" id="irrigation-card">
+            <div class="sc-icon">💧</div>
+            <div>
+                <span class="badge b-water">💧 Water Today</span>
+                <h3>Irrigation Needed</h3>
+                <p>{{ data.irrigation_status.reason }}<br>
+                    Next water: <strong>{{ data.irrigation_status.next_watering }}</strong></p>
+            </div>
+        </div>
+        {% else %}
+        <div class="status-card sc-skip" id="irrigation-card">
+            <div class="sc-icon">⏭️</div>
+            <div>
+                <span class="badge b-skip">⏭️ Skip Watering</span>
+                <h3>No Irrigation Needed</h3>
+                <p>{{ data.irrigation_status.reason }}<br>
+                    Next water: <strong>{{ data.irrigation_status.next_watering }}</strong></p>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- 15-DAY FARM CALENDAR -->
+    <div class="cal-section" id="cal-section">
+        <h3>📅 15-Day Farm Calendar
+            <span style="font-size:.72rem;font-weight:400;color:#888;margin-left:.5rem;">Hover any day for
+                details</span>
+        </h3>
+        <div class="cal-legend">
+            <div class="leg">
+                <div class="leg-dot ld-today"></div> Today
+            </div>
+            <div class="leg">
+                <div class="leg-dot ld-spray"></div> Safe to Spray
+            </div>
+            <div class="leg">
+                <div class="leg-dot ld-nospray"></div> Avoid Spray
+            </div>
+            <div class="leg">
+                <div class="leg-dot ld-water"></div> Water Crops
+            </div>
+        </div>
+        <div class="cal-grid">
+            {% if data.calendar %}
+            {% for day in data.calendar %}
+            <div class="cal-cell
+          {% if forloop.first %}today-cell{% endif %}
+          {% if day.spray_ok %}spray-ok{% else %}no-spray{% endif %}
+          {% if day.water %}water-day{% endif %}">
+                <div class="cc-date">{{ day.date }}</div>
+                <div class="cc-emoji weather-icon" data-condition="{{ day.condition|default:'Sunny'|lower }}"></div>
+                <div class="cc-temp">{{ day.temp|default:"—" }}</div>
+                <div class="cc-cond">{{ day.condition|default:"" }}</div>
+                <div class="cc-task">{{ day.task }}</div>
+                <div class="cc-badges">
+                    {% if forloop.first %}<span class="cc-badge cb-today">Today</span>{% endif %}
+                    {% if day.spray_ok %}<span class="cc-badge cb-spray">&#128138; Spray OK</span>
+                    {% else %}<span class="cc-badge cb-nospray">&#128683; No Spray</span>{% endif %}
+                    {% if day.water %}<span class="cc-badge cb-water">&#128167; Water</span>{% endif %}
+                </div>
+                <div class="cc-tooltip">
+                    <strong>{{ day.date }}{% if forloop.first %} &mdash; Today{% endif %}</strong><br>
+                    <span class="weather-icon" data-condition="{{ day.condition|default:'Sunny'|lower }}"></span> {{
+                    day.condition|default:"" }} &middot; {{ day.temp|default:"" }}<br>
+                    &#128203; {{ day.task }}<br>
+                    {% if day.spray_ok %}&#9989; Spray OK{% else %}&#10060; No Spray{% endif %}{% if day.water %}
+                    &nbsp;&#128167; Water
+                    {%endif %}
+
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div style="grid-column:1/-1;text-align:center;padding:2.5rem;color:#888;">
+                <div style="font-size:2.5rem">⏳</div>
+                <p style="margin:.5rem 0;">AI is generating your 15-day farm plan…<br>
+                    <span style="font-size:.78rem;">This takes 15–20 seconds on first visit.</span>
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- AI ADVISORY REPORT -->
+    <div class="ai-report-section" id="ai-report">
+        <span class="report-tag">🤖 AI Advisory · 15-Day</span>
+        <h3>📋 Your 15-Day Farm Advisory Report</h3>
+        <p>{{ data.ai_report|default:"Generating your personalized farm report… Please refresh in 30 seconds." }}</p>
+    </div>
+
+    <!-- IRRIGATION PLAN -->
+    {% if data.irrigation_plan %}
+    <div class="wp-card" id="irrigation-plan">
+        <h3>💧 Irrigation Plan</h3>
+        <ul>{% for item in data.irrigation_plan %}<li>{{ item }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+
+    <!-- SOIL ADVICE -->
+    {% if data.soil_advice %}
+    <div class="wp-card">
+        <h3>🌱 Soil Advice</h3>
+        <p>{{ data.soil_advice }}</p>
+    </div>
+    {% endif %}
+
+    <!-- AI TIP -->
+    {% if data.ai_advice %}
+    <div class="wp-card" id="ai-advice">
+        <h3>💡 Today's AI Tip</h3>
+        <p>{{ data.ai_advice }}</p>
+    </div>
+    {% endif %}
+
+    <p class="muted" style="text-align:center;margin-top:.5rem;">
+        ⏱️ Data cached 1 hour · City: <strong>{{ data.city|default:"Bengaluru" }}</strong>
+    </p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const voiceLang = "{{ voice_lang|default:'hi-IN' }}";
+    const _city = "{{ data.city|default:'your city'|escapejs }}";
+    const _sprayOk = {% if data.spray_window.safe_today %}true{% else %} false{% endif %};
+    const _waterToday = {% if data.irrigation_status.water_today %}true{% else %} false{% endif %};
+    const _sprayTime = "{{ data.spray_window.safe|default:''|escapejs }}";
+    const _sprayReason = "{{ data.spray_window.reason|default:''|escapejs }}";
+    const _irrigReason = "{{ data.irrigation_status.reason|default:''|escapejs }}";
+    const _aiTip = "{{ data.ai_advice|default:''|escapejs }}";
+    const _reportShort = "{{ data.ai_report|default:''|escapejs|truncatechars:250 }}";
+
+    // ── Weather icon mapper (avoids AI-generated emoji which can be garbled) ──
+    const WEATHER_ICONS_LIST = [
+        // English
+        ['sunny', '&#9728;&#65039;'],
+        ['clear', '&#9728;&#65039;'],
+        ['partly cloudy', '&#9925;'],
+        ['partly', '&#9925;'],
+        ['cloudy', '&#9729;&#65039;'],
+        ['overcast', '&#9729;&#65039;'],
+        ['rain', '&#127783;&#65039;'],
+        ['drizzle', '&#127783;&#65039;'],
+        ['thunder', '&#9928;&#65039;'],
+        ['storm', '&#9928;&#65039;'],
+        ['haze', '&#127787;&#65039;'],
+        ['fog', '&#127787;&#65039;'],
+        ['mist', '&#127787;&#65039;'],
+        ['wind', '&#127788;&#65039;'],
+        ['snow', '&#10052;&#65039;'],
+        ['hot', '&#9728;&#65039;'],
+        // Kannada
+        ['\u0cb8\u0ccd\u0cb5\u0c9a\u0ccd\u0c9b', '&#9728;&#65039;'],   // ಸ್ವಚ್ಛ (clear)
+        ['\u0cae\u0cc7\u0ca1\u0cc1', '&#9729;&#65039;'],   // ಮೇಡು (cloud)
+        ['\u0cae\u0cbe\u0cb2\u0cc6', '&#127783;&#65039;'], // ಮಾಲೆ (rain Kannada)
+        ['\u0cae\u0cb3\u0cc6', '&#127783;&#65039;'], // ಮಳೆ (rain)
+        ['\u0c97\u0cc1\u0ca1\u0cc1\u0c97\u0cc1', '&#9928;&#65039;'],   // ಗುಡುಗು (thunder)
+        ['\u0cae\u0cc6\u0c98', '&#9729;&#65039;'],   // ಮೆಘ (cloud)
+        ['\u0cae\u0cbe\u0caf', '&#127787;&#65039;'], // ಮಾಯ (fog/haze)
+        ['\u0cb8\u0c82\u0caa\u0cc2\u0cb0\u0ccd\u0ca3', '&#9728;&#65039;'], // ಸಂಪೂರ್ಣ (clear)
+        // Hindi
+        ['\u0927\u0942\u092a', '&#9728;&#65039;'],   // धूप (sun)
+        ['\u0938\u093e\u092b', '&#9728;&#65039;'],   // साफ (clear)
+        ['\u092c\u093e\u0926\u0932', '&#9729;&#65039;'], // बादल (cloud)
+        ['\u092c\u093e\u0930\u093f\u0936', '&#127783;&#65039;'], // बारिश (rain)
+        ['\u0935\u0930\u094d\u0937\u093e', '&#127783;&#65039;'], // वर्षा (rain)
+        ['\u092c\u0941\u0902\u0926\u093e', '&#127783;&#65039;'], // बूंदा (drizzle)
+        ['\u0906\u0902\u0927\u0940', '&#9928;&#65039;'],   // आंधी (storm)
+        ['\u0917\u0930\u091c', '&#9928;&#65039;'],   // गरज (thunder)
+        ['\u0915\u094b\u0939\u0930\u093e', '&#127787;&#65039;'], // कोहरा (fog)
+        ['\u0927\u0941\u0902\u0927', '&#127787;&#65039;'], // धुंध (haze)
+    ];
+    function getWeatherIcon(condition) {
+        const c = (condition || '').toLowerCase();
+        for (const [key, icon] of WEATHER_ICONS_LIST) {
+            if (c.includes(key)) return icon;
+        }
+        return '&#127780;&#65039;'; // 🌤️ default
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.weather-icon').forEach(el => {
+            el.innerHTML = getWeatherIcon(el.dataset.condition || '');
+        });
+    });
+
+
+    // ── Tour Steps with localized descriptions ──
+    window.pageTourSteps = [
+        {
+            target: 'wp-hero',
+            title: 'Current Weather',
+            desc: "Today's temperature, humidity and wind for " + _city + ".",
+            title_hi: 'मौसम जानकारी', desc_hi: _city + " का आज का तापमान, नमी और हवा की जानकारी।",
+            title_kn: 'ಹವಾಮಾನ ಮಾಹಿತಿ', desc_kn: _city + " ಇಂದಿನ ತಾಪಮಾನ, ತೇವಾಂಶ ಮತ್ತು ಗಾಳಿ ಮಾಹಿತಿ.",
+            title_ta: 'வானிலை தகவல்', desc_ta: _city + " இன்றைய வெப்பநிலை, ஈரப்பதம் மற்றும் காற்று தகவல்.",
+            title_te: 'వాతావరణ సమాచారం', desc_te: _city + " ఈ రోజు ఉష్ణోగ్రత, తేమ మరియు గాలి సమాచారం.",
+        },
+        {
+            target: 'spray-card',
+            title: 'Spray Window',
+            desc: _sprayOk ? ("Safe to spray pesticide today between " + _sprayTime + ".") : ("Avoid spraying today. " + _sprayReason),
+            title_hi: 'कीटनाशक छिड़काव', desc_hi: _sprayOk ? ("आज " + _sprayTime + " के बीच कीटनाशक छिड़काव सुरक्षित है।") : ("आज छिड़काव से बचें। " + _sprayReason),
+            title_kn: 'ಕೀಟನಾಶಕ ಸಿಂಪಡಣೆ', desc_kn: _sprayOk ? ("ಇಂದು " + _sprayTime + " ನಡುವೆ ಕೀಟನಾಶಕ ಸಿಂಪಡಿಸುವುದು ಸುರಕ್ಷಿತ.") : ("ಇಂದು ಸಿಂಪಡಣೆ ಬೇಡ. " + _sprayReason),
+            title_ta: 'பூச்சிக்கொல்லி தெளிப்பு', desc_ta: _sprayOk ? ("இன்று " + _sprayTime + " இடையே பூச்சிக்கொல்லி தெளிக்கலாம்.") : ("இன்று தெளிப்பு வேண்டாம். " + _sprayReason),
+            title_te: 'పురుగుమందు పిచికారీ', desc_te: _sprayOk ? ("ఈ రోజు " + _sprayTime + " మధ్య పురుగుమందు పిచికారీ సురక్షితం.") : ("ఈ రోజు పిచికారీ వద్దు. " + _sprayReason),
+        },
+        {
+            target: 'irrigation-card',
+            title: 'Irrigation Status',
+            desc: _waterToday ? ("Water your crops today. " + _irrigReason) : ("Skip irrigation today. " + _irrigReason),
+            title_hi: 'सिंचाई स्थिति', desc_hi: _waterToday ? ("आज फसल को पानी दें। " + _irrigReason) : ("आज सिंचाई की जरूरत नहीं। " + _irrigReason),
+            title_kn: 'ನೀರಾವರಿ ಸ್ಥಿತಿ', desc_kn: _waterToday ? ("ಇಂದು ಬೆಳೆಗೆ ನೀರು ಹಾಕಿ. " + _irrigReason) : ("ಇಂದು ನೀರಾವರಿ ಬೇಡ. " + _irrigReason),
+            title_ta: 'நீர்ப்பாசன நிலை', desc_ta: _waterToday ? ("இன்று பயிருக்கு நீர் ஊற்றவும். " + _irrigReason) : ("இன்று நீர்ப்பாசனம் வேண்டாம். " + _irrigReason),
+            title_te: 'నీటిపారుదల స్థితి', desc_te: _waterToday ? ("ఈ రోజు పంటకు నీరు పెట్టండి. " + _irrigReason) : ("ఈ రోజు నీటిపారుదల వద్దు. " + _irrigReason),
+        },
+        {
+            target: 'cal-section',
+            title: '15-Day Calendar',
+            desc: 'Each tile shows what to do on that farm day. Hover for full details.',
+            title_hi: '15 दिन का कैलेंडर', desc_hi: 'हर टाइल पर उस दिन का काम दिखाया गया है। विवरण के लिए होवर करें।',
+            title_kn: '15 ದಿನದ ಕ್ಯಾಲೆಂಡರ್', desc_kn: 'ಪ್ರತಿ ಟೈಲ್ ಆ ದಿನದ ಕೆಲಸ ತೋರಿಸುತ್ತದೆ. ವಿವರಗಳಿಗೆ ಹೋವರ್ ಮಾಡಿ.',
+            title_ta: '15 நாள் நாள்காட்டி', desc_ta: 'ஒவ்வொரு கட்டத்திலும் அந்த நாளின் வேலை காட்டப்படுகிறது.',
+            title_te: '15 రోజుల క్యాలెండర్', desc_te: 'ప్రతి టైల్ ఆ రోజు ఏం చేయాలో చూపిస్తుంది. వివరాలకు హోవర్ చేయండి.',
+        },
+        {
+            target: 'ai-report',
+            title: 'AI Advisory Report',
+            desc: 'Your complete 15-day farming advisory from Sakhi AI.',
+            title_hi: 'AI सलाह रिपोर्ट', desc_hi: 'सखी AI की 15 दिन की खेती सलाह रिपोर्ट।',
+            title_kn: 'AI ಸಲಹಾ ವರದಿ', desc_kn: 'ಸಖಿ AI ಯಿಂದ 15 ದಿನಗಳ ಕೃಷಿ ಸಲಹಾ ವರದಿ.',
+            title_ta: 'AI ஆலோசனை அறிக்கை', desc_ta: 'சகி AI இன் 15 நாள் விவசாய ஆலோசனை அறிக்கை.',
+            title_te: 'AI సలహా నివేదిక', desc_te: 'సఖి AI నుండి 15 రోజుల వ్యవసాయ సలహా నివేదిక.',
+        },
+    ];
+
+    // ── Voice readout (local language) ──
+    function readWeatherPlan() {
+        const lang = (typeof getPageLang === 'function') ? getPageLang() : 'en';
+
+        const msgs = {
+            'hi': _city + " खेती योजना। " +
+                (_sprayOk ? "आज कीटनाशक छिड़काव सुरक्षित है।" : "आज छिड़काव से बचें।") + " " +
+                (_waterToday ? "आज फसल को पानी दें।" : "आज सिंचाई की जरूरत नहीं।") + " " +
+                _aiTip + " " + _reportShort,
+            'kn': _city + " ಕೃಷಿ ಯೋಜನೆ. " +
+                (_sprayOk ? "ಇಂದು ಕೀಟನಾಶಕ ಸಿಂಪಡಿಸುವುದು ಸುರಕ್ಷಿತ." : "ಇಂದು ಸಿಂಪಡಣೆ ಬೇಡ.") + " " +
+                (_waterToday ? "ಇಂದು ಬೆಳೆಗೆ ನೀರು ಹಾಕಿ." : "ಇಂದು ನೀರಾವರಿ ಬೇಡ.") + " " +
+                _aiTip + " " + _reportShort,
+            'ta': _city + " விவசாய திட்டம். " +
+                (_sprayOk ? "இன்று பூச்சிக்கொல்லி தெளிக்கலாம்." : "இன்று தெளிப்பு வேண்டாம்.") + " " +
+                (_waterToday ? "இன்று பயிருக்கு நீர் ஊற்றவும்." : "இன்று நீர்ப்பாசனம் வேண்டாம்.") + " " +
+                _aiTip + " " + _reportShort,
+            'te': _city + " వ్యవసాయ ప్రణాళిక. " +
+                (_sprayOk ? "ఈ రోజు పురుగుమందు పిచికారీ సురక్షితం." : "ఈ రోజు పిచికారీ వద్దు.") + " " +
+                (_waterToday ? "ఈ రోజు పంటకు నీరు పెట్టండి." : "ఈ రోజు నీటిపారుదల వద్దు.") + " " +
+                _aiTip + " " + _reportShort,
+            'en': _city + " farming plan. " +
+                (_sprayOk ? "Safe to spray today." : "Avoid spraying today.") + " " +
+                (_waterToday ? "Irrigate your crops today." : "Skip irrigation today.") + " " +
+                _aiTip + " " + _reportShort,
+        };
+
+        const text = msgs[lang] || msgs['en'];
+        if (typeof speakLocalText === 'function') { speakLocalText(text); }
+        else if (window.speechSynthesis) {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = voiceLang; u.rate = 0.9;
+            speechSynthesis.cancel(); speechSynthesis.speak(u);
+        }
+    }
+
+    // ── Welcome greeting (local language) ──
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const lang = (typeof getPageLang === 'function') ? getPageLang() : 'en';
+            const welcomes = {
+                'hi': _city + " की 15 दिन की खेती योजना तैयार है।",
+                'kn': _city + " 15 ದಿನಗಳ ಕೃಷಿ ಯೋಜನೆ ಸಿದ್ಧವಾಗಿದೆ.",
+                'ta': _city + " 15 நாள் விவசாய திட்டம் தயாராக உள்ளது.",
+                'te': _city + " 15 రోజుల వ్యవసాయ ప్రణాళిక సిద్ధంగా ఉంది.",
+                'en': _city + " 15-day farm plan is ready.",
+            };
+            if (typeof speakLocalText === 'function') speakLocalText(welcomes[lang] || welcomes['en']);
+        }, 1200);
+    });
+</script>
+{% endblock %}

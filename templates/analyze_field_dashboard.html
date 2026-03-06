@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analyze Field - Choose Method{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        text-align: center;
+    }
+
+    .dashboard-container h1 {
+        color: #2c5e2e;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-container p {
+        font-size: 1.1rem;
+        color: #555;
+        margin-bottom: 3rem;
+    }
+
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .feature-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid #e8f5e9;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+        border-color: #a7d3a6;
+    }
+
+    .feature-card .icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #4CAF50;
+    }
+
+    .feature-card h2 {
+        font-size: 1.6rem;
+        color: #333;
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-card .description {
+        color: #777;
+        margin-bottom: 1.5rem;
+        min-height: 50px;
+    }
+
+    .feature-card a {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background-color: #2c5e2e;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+    }
+
+    .feature-card a:hover {
+        background-color: #4CAF50;
+        transform: none;
+        /* Override general hover transform */
+    }
+</style>
+
+<div class="dashboard-container">
+    <h1>Analyze Field: Choose Your Method 🧠</h1>
+    <p>Select the best tool based on your current need and available data.</p>
+
+    <div class="feature-grid">
+
+        <div class="feature-card" id="card-video">
+            <div class="icon">📹</div>
+            <h2>AI Crop Guardian</h2>
+            <div class="description">
+                Comprehensive weekly analysis using a 30-second field video. Detects growth rate, uniformity, and
+                problem zones. **(HIGH-END AI FEATURE)**
+            </div>
+            <a href="{% url 'video_analysis_upload' %}">Start Video Analysis</a>
+        </div>
+
+        <div class="feature-card" id="card-image">
+            <div class="icon">📸</div>
+            <h2>Image Prediction</h2>
+            <div class="description">
+                Quick diagnosis of specific disease or pest issues from a single uploaded image of a leaf or stem.
+                **(STANDARD DIAGNOSIS)**
+            </div>
+            <a href="{% url 'predict' %}">Start Image Upload</a>
+        </div>
+
+        <div class="feature-card" id="card-live">
+            <div class="icon">🎤</div>
+            <h2>Live Vision Advisor</h2>
+            <div class="description">
+                Use your mobile camera and voice instantly to ask the AI questions about a crop, pest, or field
+                condition in real-time. **(REAL-TIME ASSISTANT)**
+            </div>
+            <a href="{% url 'live_vision' %}">Start Live Vision</a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.pageTourSteps = [
+        {
+            target: 'card-video',
+            title: '📹 AI Crop Guardian',
+            desc: 'Upload a 30-second video of your field. AI will analyze growth, pests, and health.',
+            title_hi: '📹 AI फसल रक्षक', desc_hi: 'अपने खेत का 30 सेकंड का वीडियो अपलोड करें। AI विश्लेषण करेगा।',
+            title_kn: '📹 AI ಬೆಳೆ ರಕ್ಷಕ', desc_kn: 'ನಿಮ್ಮ ಹೊಲದ 30 ಸೆಕೆಂಡ್ ವಿಡಿಯೋ ಅಪ್ಲೋಡ್ ಮಾಡಿ. AI ವಿಶ್ಲೇಷಣೆ ಮಾಡುತ್ತದೆ.',
+            title_ta: '📹 AI பயிர் காவலர்', desc_ta: 'உங்கள் வயலின் 30 வினாடி வீடியோவை பதிவேற்றவும்.',
+            title_te: '📹 AI పంట రక్షకుడు', desc_te: 'మీ పొలం యొక్క 30 సెకన్ల వీడియోను అప్లోడ్ చేయండి.',
+        },
+        {
+            target: 'card-image',
+            title: '📸 Image Prediction',
+            desc: 'Take a photo of a sick leaf. AI will detect the disease and give you the cure.',
+            title_hi: '📸 फोटो से जाँच', desc_hi: 'बीमार पत्ती की फोटो लें। AI बीमारी बताएगा और दवाई देगा।',
+            title_kn: '📸 ಚಿತ್ರ ಪರೀಕ್ಷೆ', desc_kn: 'ರೋಗಗ್ರಸ್ತ ಎಲೆಯ ಫೋಟೋ ತೆಗೆಯಿರಿ. AI ರೋಗ ಮತ್ತು ಔಷಧಿ ತಿಳಿಸುತ್ತದೆ.',
+            title_ta: '📸 படம் மூலம் பரிசோதனை', desc_ta: 'நோயுற்ற இலையின் படம் எடுக்கவும். AI நோய் மற்றும் மருந்தை கூறும்.',
+            title_te: '📸 చిత్రం ద్వారా పరీక్ష', desc_te: 'రోగగ్రస్తమైన ఆకు ఫోటో తీయండి. AI రోగం మరియు మందు చెప్తుంది.',
+        },
+        {
+            target: 'card-live',
+            title: '🎤 Live Vision',
+            desc: 'Open your camera and ask questions in real-time. AI sees what you see!',
+            title_hi: '🎤 लाइव विजन', desc_hi: 'कैमरा खोलें और सवाल पूछें। AI देखेगा जो आप देखते हैं!',
+            title_kn: '🎤 ಲೈವ್ ವಿಷನ್', desc_kn: 'ನಿಮ್ಮ ಕ್ಯಾಮೆರಾ ತೆರೆಯಿರಿ ಮತ್ತು ನೈಜ ಸಮಯದಲ್ಲಿ ಪ್ರಶ್ನೆಗಳನ್ನು ಕೇಳಿ!',
+            title_ta: '🎤 நேரடி பார்வை', desc_ta: 'கேமராவை திறந்து உடனடியாக கேள்விகள் கேளுங்கள்!',
+            title_te: '🎤 లైవ్ విజన్', desc_te: 'మీ కెమెరా తెరిచి నిజ సమయంలో ప్రశ్నలు అడగండి!',
+        }
+    ];
+</script>
+{% endblock %}

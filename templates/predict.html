@@ -1,0 +1,600 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Disease Prediction{% endblock %}
+
+{% block content %}
+<div class="loader-overlay" id="loading-spinner">
+    <div class="loader-spinner"></div>
+    <div class="loader-text" id="loader-text-id">Analyzing... Result generated instantly.</div>
+</div>
+<style>
+    /* CRITICAL FIXES EMBEDDED INLINE for Predict Wizard */
+    .predict-container-wizard {
+        max-width: 800px;
+        margin: 2rem auto;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+
+    .progress-bar-container {
+        padding: 2rem 2.5rem 1.5rem 2.5rem;
+        background-color: #fcfcfc;
+        border-bottom: 1px solid #eee;
+    }
+
+    .progress-bar-steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+    }
+
+    .progress-bar-steps::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background-color: #f0f0f0;
+        z-index: 1;
+        transform: translateY(-50%);
+    }
+
+    .progress-bar-line {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 0%;
+        height: 4px;
+        background-color: #4CAF50;
+        z-index: 2;
+        transform: translateY(-50%);
+        transition: width 0.4s ease;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 3;
+    }
+
+    .step-label {
+        margin-top: 0.5rem;
+        font-weight: 500;
+        color: #999;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        transition: all 0.4s ease;
+    }
+
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f0f0f0;
+        border: 4px solid #f0f0f0;
+        color: #999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1rem;
+        transition: all 0.4s ease;
+    }
+
+    .step.active .step-circle {
+        background-color: #fff;
+        border-color: #4CAF50;
+        color: #4CAF50;
+    }
+
+    .step.completed .step-circle {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+        color: #fff;
+    }
+
+    .step-label {
+        color: #333;
+        font-weight: 600;
+    }
+
+    .form-step {
+        display: none;
+        padding: 2rem 2.5rem;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .form-step.active {
+        display: block;
+    }
+
+    .form-step h3 {
+        margin-bottom: 5px;
+        margin-top: 0;
+        color: #2c5e2e;
+    }
+
+    .form-step p {
+        margin-bottom: 20px;
+        color: #555;
+        font-size: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.2rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .custom-file-upload {
+        border: 2px dashed #a7d3a6;
+        border-radius: 8px;
+        padding: 2.5rem;
+        text-align: center;
+        cursor: pointer;
+        background-color: #f1f8e9;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-submit {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 13px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 17px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-nav {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .form-navigation {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 2rem;
+    }
+
+    /* ── RESULT PANEL ── */
+    #result-panel {
+        display: none;
+        padding: 1.2rem 1.4rem;
+        animation: fadeIn 0.5s ease;
+    }
+
+    #result-panel.visible {
+        display: block;
+    }
+
+    .res-hero {
+        display: flex;
+        align-items: flex-start;
+        gap: .9rem;
+        margin-bottom: .9rem;
+    }
+
+    .res-img {
+        width: 88px;
+        height: 88px;
+        border-radius: 12px;
+        object-fit: cover;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .12);
+        flex-shrink: 0;
+    }
+
+    .res-hero-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .res-disease-name {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #1b5e20;
+        margin: 0 0 .3rem;
+        line-height: 1.3;
+    }
+
+    .res-crop-tag {
+        font-size: .75rem;
+        color: #777;
+        margin: 0 0 .4rem;
+    }
+
+    .res-sev-chip {
+        display: inline-block;
+        padding: 2px 11px;
+        border-radius: 20px;
+        font-size: .7rem;
+        font-weight: 800;
+    }
+
+    .sev-high {
+        background: #ffe0e0;
+        color: #c62828;
+        border: 1.5px solid #ef9a9a;
+    }
+
+    .sev-medium {
+        background: #fff3e0;
+        color: #e65100;
+        border: 1.5px solid #ffcc80;
+    }
+
+    .sev-low {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border: 1.5px solid #a5d6a7;
+    }
+
+    .res-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .55rem;
+        margin-bottom: .7rem;
+    }
+
+    @media(max-width:480px) {
+        .res-info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .res-info-card {
+        background: #f8fdf8;
+        border: 1.5px solid #e8f5e9;
+        border-radius: 11px;
+        padding: .7rem .8rem;
+    }
+
+    .res-info-card.full {
+        grid-column: 1 / -1;
+    }
+
+    .res-ic-label {
+        font-size: .62rem;
+        font-weight: 800;
+        letter-spacing: .5px;
+        color: #999;
+        text-transform: uppercase;
+        margin-bottom: .25rem;
+    }
+
+    .res-ic-text {
+        font-size: .8rem;
+        color: #333;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .res-steps {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: .45rem;
+    }
+
+    .res-step-li {
+        display: flex;
+        align-items: flex-start;
+        gap: .55rem;
+        background: #f9fdf9;
+        border-radius: 9px;
+        padding: .6rem .75rem;
+        border: 1px solid #e8f5e9;
+        font-size: .78rem;
+        color: #333;
+        line-height: 1.5;
+    }
+
+    .step-num {
+        min-width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #2e7d32;
+        color: #fff;
+        font-size: .6rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .btn-new-scan {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        margin-top: .9rem;
+        width: 100%;
+        background: linear-gradient(135deg, #1b5e20, #43a047);
+        color: #fff;
+        border: none;
+        padding: 11px;
+        border-radius: 11px;
+        font-size: .88rem;
+        cursor: pointer;
+        font-weight: 700;
+        transition: transform .2s;
+    }
+
+    .btn-new-scan:hover {
+        transform: translateY(-2px);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+<div class="predict-container-wizard">
+    <form class="predict-form" id="predict-form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if error %}
+        <div class="error-message" style="margin: 0 2.5rem 1rem 2.5rem;">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Image Upload Step (Zero-Click Prediction) -->
+        <div id="step-2" style="padding: 2rem 2.5rem;">
+            <h3>Upload Crop Image 📸</h3>
+            <p>Sakhi will automatically detect the crop and any diseases. No typing required!</p>
+
+            <div class="form-group">
+                <label for="image-input" class="custom-file-upload" id="file-upload-box">
+                    <div class="upload-icon">📤</div>
+                    <p>Tap to take a picture or upload an image</p>
+                    <span>(Sakhi will do the rest)</span>
+                </label>
+                <input type="file" id="image-input" name="image" accept="image/*" capture="environment" required
+                    style="display: none;">
+                <span id="file-name" style="display:block; text-align:center; margin-top:10px;">No file chosen</span>
+            </div>
+
+            <div class="form-navigation">
+                <button type="submit" class="btn-submit" id="analyze-btn" disabled>🔬 Analyze Crop</button>
+            </div>
+        </div>
+
+    </form>
+
+    <!-- RESULT PANEL -->
+    <div id="result-panel">
+        <div class="res-hero">
+            <img id="result-image" src="" alt="Crop" class="res-img">
+            <div class="res-hero-info">
+                <div class="res-disease-name" id="result-disease"></div>
+                <div class="res-crop-tag">&#129718; Crop: <strong id="result-crop"></strong></div>
+                <span class="res-sev-chip" id="result-severity"></span>
+            </div>
+        </div>
+        <div class="res-info-grid">
+            <div class="res-info-card">
+                <div class="res-ic-label">&#128218; Cause</div>
+                <div class="res-ic-text" id="result-cause"></div>
+            </div>
+            <div class="res-info-card">
+                <div class="res-ic-label">&#9877;&#65039; Chemical Cure</div>
+                <div class="res-ic-text" id="result-cure"></div>
+            </div>
+            <div class="res-info-card full">
+                <div class="res-ic-label">&#127807; Home Remedy</div>
+                <div class="res-ic-text" id="result-remedies"></div>
+            </div>
+        </div>
+        <div
+            style="font-size:.62rem;font-weight:800;letter-spacing:.5px;color:#999;text-transform:uppercase;margin-bottom:.4rem;">
+            &#128295; Action Steps</div>
+        <ul class="res-steps" id="result-solution"></ul>
+        <button class="btn-new-scan" onclick="resetScan()">&#128260; Scan Another Crop</button>
+    </div>
+</div>
+{% endblock %}
+
+
+
+{% block scripts %}
+<script>
+    // ── DECLARE ALL VARIABLES FIRST ──
+    var fileInput = document.getElementById('image-input');
+    var analyzeBtn = document.getElementById('analyze-btn');
+    var fileUploadBox = document.getElementById('file-upload-box');
+    var fileName = document.getElementById('file-name');
+    var spinner = document.getElementById('loading-spinner');
+
+    // Guard: if any element is missing, bail gracefully
+    if (!fileInput || !analyzeBtn) {
+        console.warn('predict.html: required elements not found');
+    } else {
+
+        fileInput.addEventListener('change', function () {
+            if (fileInput.files.length > 0) {
+                if (fileName) fileName.textContent = fileInput.files[0].name;
+                analyzeBtn.disabled = false;
+                if (fileUploadBox) {
+                    fileUploadBox.style.borderColor = '#4CAF50';
+                    fileUploadBox.style.background = '#e8f5e9';
+                }
+            } else {
+                if (fileName) fileName.textContent = 'No file chosen';
+                analyzeBtn.disabled = true;
+                if (fileUploadBox) fileUploadBox.style.borderColor = '#a7d3a6';
+            }
+        });
+
+
+        // --- Async Form Submission via fetch() ---
+        const predictForm = document.getElementById('predict-form');
+        const resultPanel = document.getElementById('result-panel');
+
+        predictForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (fileInput.files.length === 0) { alert('Please tap to upload or take a picture first.'); return; }
+
+            // Show spinner
+            spinner.style.display = 'flex';
+
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+
+            try {
+                const csrfToken = '{{ csrf_token }}';
+                const response = await fetch('{% url "api_scan_crop" %}', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken },
+                    body: formData
+                });
+
+                const data = await response.json();
+                spinner.style.display = 'none';
+
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+
+                // Inject results
+                displayResult(data);
+            } catch (error) {
+                spinner.style.display = 'none';
+                alert('Network error. Please check your connection and try again.');
+                console.error('Scan error:', error);
+            }
+        });
+
+        function displayResult(data) {
+            // Hide upload form
+            document.getElementById('step-2').style.display = 'none';
+
+            // Helper: truncate text to maxLen chars
+            function trunc(str, maxLen) {
+                if (!str) return 'Not available';
+                return str.length > maxLen ? str.substring(0, maxLen).trim() + '\u2026' : str;
+            }
+
+            // Image preview
+            if (fileInput && fileInput.files.length > 0) {
+                document.getElementById('result-image').src = URL.createObjectURL(fileInput.files[0]);
+            }
+
+            // Disease + crop
+            document.getElementById('result-disease').textContent = data.disease_name || 'Unknown';
+            document.getElementById('result-crop').textContent = data.crop_name || 'Unknown';
+
+            // Severity chip
+            var sevEl = document.getElementById('result-severity');
+            var sevRaw = (data.severity || 'low').toLowerCase();
+            sevEl.textContent = '\u25cf  ' + (data.severity || 'Low');
+            sevEl.className = 'res-sev-chip';
+            if (sevRaw === 'high') sevEl.classList.add('sev-high');
+            else if (sevRaw === 'medium') sevEl.classList.add('sev-medium');
+            else sevEl.classList.add('sev-low');
+
+            // Info cards — truncated to 120 chars
+            document.getElementById('result-cause').textContent = trunc(data.cause, 120);
+            document.getElementById('result-cure').textContent = trunc(data.cure, 120);
+            document.getElementById('result-remedies').textContent = trunc(data.home_remedies, 140);
+
+            // Solution steps — max 4, each step detail truncated to 80 chars
+            var solUl = document.getElementById('result-solution');
+            solUl.innerHTML = '';
+            var steps = (data.solution && Array.isArray(data.solution)) ? data.solution.slice(0, 4) : [];
+            if (steps.length === 0) {
+                var li = document.createElement('li');
+                li.className = 'res-step-li';
+                li.innerHTML = '<span class="step-num">&#10003;</span> Follow the cure guidance above.';
+                solUl.appendChild(li);
+            } else {
+                steps.forEach(function (s, i) {
+                    var li = document.createElement('li');
+                    li.className = 'res-step-li';
+                    var detail = trunc(s.details || s.step || '', 90);
+                    li.innerHTML = '<span class="step-num">' + (i + 1) + '</span>' +
+                        '<span>' + (s.step ? '<strong>' + s.step + '</strong> &mdash; ' : '') + detail + '</span>';
+                    solUl.appendChild(li);
+                });
+            }
+
+            // Show panel
+            resultPanel.classList.add('visible');
+            resultPanel.style.display = 'block';
+
+            // Speak abridged result
+            speakResult(data);
+        }
+
+        function speakResult(data) {
+            const text = `I detected ${data.crop_name || 'a crop'} with ${data.disease_name || 'unknown condition'}. ${data.cause || ''}`.trim();
+            if (typeof speakLocalText === 'function') { speakLocalText(text); }
+            else if (window.speechSynthesis) {
+                const u = new SpeechSynthesisUtterance(text);
+                speechSynthesis.cancel(); speechSynthesis.speak(u);
+            }
+        }
+
+        function resetScan() {
+            // Reset everything
+            resultPanel.style.display = 'none';
+            resultPanel.classList.remove('visible');
+            document.getElementById('step-2').style.display = 'block';
+
+            // Reset selections
+            fileInput.value = '';
+            fileName.textContent = 'No file chosen';
+            analyzeBtn.disabled = true;
+            fileUploadBox.style.borderColor = '#a7d3a6';
+        }
+
+        // --- Voice Guidance on Load ---
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                if (typeof speakLocalText === 'function') {
+                    var msgs = {
+                        'hi-IN': "कृपया बॉक्स पर टैप करें और फसल की तस्वीर अपलोड करें। Sakhi खुद पहचान करेगी।",
+                        'kn-IN': "ದಯವಿಟ್ಟು ಬಾಕ್ಸ್ ಮೇಲೆ ಟ್ಯಾಪ್ ಮಾಡಿ ಮತ್ತು ಬೆಳೆಯ ಚಿತ್ರ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ. ಸಖಿ ತಾನೇ ಗುರುತಿಸುತ್ತಾಳೆ.",
+                        'ta-IN': "பெட்டியை தட்டி பயிரின் படத்தை பதிவேற்றவும். சக்தி தானாக கண்டறியும்.",
+                        'te-IN': "బాక్స్‌పై నొక్కి, పంట చిత్రాన్ని అప్‌లోడ్ చేయండి. సఖి స్వయంగా గుర్తిస్తుంది.",
+                        'en-US': "Please tap the box to upload a picture of your crop. Sakhi will automatically detect the disease.",
+                    };
+                    var lang = typeof getPageLang === 'function' ? getPageLang() : 'en';
+                    var bcp = { 'hi': 'hi-IN', 'kn': 'kn-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'en': 'en-US', 'mr': 'hi-IN' };
+                    speakLocalText(msgs[bcp[lang] || 'en-US'] || msgs['en-US']);
+                }
+            }, 1200);
+        });
+
+    } // end if (fileInput && analyzeBtn)
+</script>
+{% endblock %}

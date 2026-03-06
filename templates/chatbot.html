@@ -1,0 +1,566 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chatbot - Sakhi{% endblock %}
+
+{% block styles %}
+<style>
+    /* --- FLOATING CHATBOT WINDOW --- */
+    /* Hide the default float-chat-btn from base.html since we have our own */
+    .float-chat-btn {
+        display: none !important;
+    }
+
+    /* Toggle Button (always visible) */
+    .sakhi-fab {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        font-size: 30px;
+        cursor: pointer;
+        z-index: 9998;
+        box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s, background 0.3s;
+    }
+
+    .sakhi-fab:active {
+        transform: scale(0.9);
+    }
+
+    .sakhi-fab.open {
+        background: #d32f2f;
+    }
+
+    /* Floating Chat Window */
+    .sakhi-window {
+        position: fixed;
+        bottom: 95px;
+        right: 20px;
+        width: 380px;
+        height: 550px;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+        z-index: 9999;
+        display: none;
+        /* hidden by default */
+        flex-direction: column;
+        overflow: hidden;
+        animation: floatUp 0.35s ease;
+    }
+
+    .sakhi-window.visible {
+        display: flex;
+    }
+
+    @keyframes floatUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* Mobile full-screen */
+    @media (max-width: 500px) {
+        .sakhi-window {
+            bottom: 0;
+            right: 0;
+            left: 0;
+            top: 70px;
+            width: 100%;
+            height: auto;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .sakhi-fab {
+            bottom: 15px;
+            right: 15px;
+        }
+    }
+
+    /* Header */
+    .sakhi-header {
+        background: #4CAF50;
+        color: white;
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .sakhi-header-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .sakhi-header-controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .sakhi-header-controls select {
+        padding: 3px 6px;
+        border-radius: 6px;
+        border: none;
+        font-size: 0.8rem;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .sakhi-header-controls button {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    /* Messages Area */
+    .sakhi-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+        padding-bottom: 10px;
+        background: #f9fbe7;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .s-msg-user {
+        background: #dcedc8;
+        padding: 10px 14px;
+        border-radius: 14px 14px 0 14px;
+        align-self: flex-end;
+        max-width: 80%;
+        word-wrap: break-word;
+        font-size: 0.95rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .s-msg-bot {
+        background: #fff;
+        padding: 10px 14px;
+        border-radius: 14px 14px 14px 0;
+        align-self: flex-start;
+        max-width: 85%;
+        border: 1px solid #e0e0e0;
+        display: flex;
+        gap: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        font-size: 0.95rem;
+    }
+
+    .s-bot-avatar {
+        width: 28px;
+        height: 28px;
+        background: #4CAF50;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .s-msg-time {
+        font-size: 0.65rem;
+        color: #999;
+        margin-top: 3px;
+        display: block;
+    }
+
+    /* Input / Mic Area */
+    .sakhi-input-area {
+        padding: 12px 16px;
+        background: #fff;
+        border-top: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .sakhi-mic-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Giant Mic Button */
+    .sakhi-mic {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: none;
+        background: #4CAF50;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(76, 175, 80, 0.35);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .sakhi-mic:active {
+        transform: scale(0.92);
+    }
+
+    /* Pulse animation when recording */
+    .sakhi-mic.recording {
+        background: #e53935;
+        animation: micPulse 1.2s ease-in-out infinite;
+        box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.5);
+    }
+
+    @keyframes micPulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.5);
+        }
+
+        70% {
+            box-shadow: 0 0 0 20px rgba(229, 57, 53, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(229, 57, 53, 0);
+        }
+    }
+
+    /* Status text below mic */
+    .sakhi-status {
+        font-size: 0.8rem;
+        color: #666;
+        height: 18px;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .sakhi-status.listening {
+        color: #e53935;
+        font-weight: 700;
+    }
+
+    .sakhi-status.sending {
+        color: #ff9800;
+    }
+
+    /* Typewriter cursor blink */
+    .typewriter-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1em;
+        background: #4CAF50;
+        margin-left: 2px;
+        animation: blink 0.7s step-end infinite;
+        vertical-align: text-bottom;
+    }
+
+    @keyframes blink {
+        50% {
+            opacity: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- The page itself is just a placeholder; the chatbot is a floating overlay -->
+<div
+    style="min-height: 60vh; display:flex; align-items:center; justify-content:center; text-align:center; padding: 2rem;">
+    <div>
+        <h2 style="color:#2c5e2e;">🌾 Sakhi Assistant</h2>
+        <p style="color:#555; font-size:1.1rem;">Tap the green button to start talking to Sakhi.</p>
+        <p style="color:#888; font-size:0.9rem;">Press 🎤 to speak, or type your question.</p>
+    </div>
+</div>
+
+<!-- FLOATING CHATBOT -->
+<button class="sakhi-fab" id="sakhi-fab" onclick="toggleChat()">💬</button>
+
+<div class="sakhi-window" id="sakhi-window">
+    <div class="sakhi-header">
+        <span class="sakhi-header-title">🌾 Sakhi</span>
+        <div class="sakhi-header-controls">
+            <select id="lang-select">
+                <option value="en-US">English</option>
+                <option value="hi-IN">Hindi</option>
+                <option value="te-IN">Telugu</option>
+                <option value="ta-IN">Tamil</option>
+                <option value="kn-IN">Kannada</option>
+            </select>
+            <button id="stop-speech-btn" title="Stop Speaking">🔇</button>
+        </div>
+    </div>
+
+    <div class="sakhi-messages" id="sakhi-messages">
+        <div class="s-msg-bot">
+            <div class="s-bot-avatar">S</div>
+            <div>
+                <span>Namaste! I'm Sakhi 🌱. Press the mic & ask me anything about crops!</span>
+                <span class="s-msg-time">Just now</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="sakhi-input-area">
+        <div class="sakhi-mic-row">
+            <input type="text" id="sakhi-text-input" placeholder="Type here..." style="
+                flex:1; padding:10px 14px; border:2px solid #e0e0e0;
+                border-radius:25px; font-size:0.95rem; outline:none; background:#f9f9f9;
+            ">
+            <button class="sakhi-mic" id="sakhi-mic">🎤</button>
+            <button id="sakhi-send-btn" style="
+                width:46px; height:46px; border-radius:50%; border:none;
+                background:#4CAF50; color:white; font-size:1.2rem; cursor:pointer;
+                display:flex; align-items:center; justify-content:center;
+                box-shadow:0 2px 8px rgba(0,0,0,0.15);
+            ">➤</button>
+        </div>
+        <div class="sakhi-status" id="sakhi-status">Tap 🎤 to speak</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // --- TOGGLE FLOATING WINDOW ---
+    const fab = document.getElementById('sakhi-fab');
+    const chatWindow = document.getElementById('sakhi-window');
+    let chatOpen = false;
+
+    // Auto-open on chatbot page
+    window.addEventListener('load', () => {
+        toggleChat();
+    });
+
+    function toggleChat() {
+        chatOpen = !chatOpen;
+        chatWindow.classList.toggle('visible', chatOpen);
+        fab.classList.toggle('open', chatOpen);
+        fab.textContent = chatOpen ? '✕' : '💬';
+    }
+
+    // --- ELEMENTS ---
+    const csrfToken = '{{ csrf_token }}';
+    const messagesBox = document.getElementById('sakhi-messages');
+    const micBtn = document.getElementById('sakhi-mic');
+    const statusEl = document.getElementById('sakhi-status');
+    const langSelect = document.getElementById('lang-select');
+    const stopSpeechBtn = document.getElementById('stop-speech-btn');
+    const textInput = document.getElementById('sakhi-text-input');
+    const sendBtn = document.getElementById('sakhi-send-btn');
+
+    let isSpeaking = false;
+    let recognition;
+
+    // --- TEXT INPUT: Type + Send ---
+    textInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(textInput.value.trim()); });
+    sendBtn.addEventListener('click', () => sendMessage(textInput.value.trim()));
+
+    // --- MIC BUTTON: Speech Recognition ---
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SR();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        micBtn.addEventListener('click', () => {
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+            }
+            micBtn.classList.add('recording');
+            statusEl.textContent = '🔴 Listening...';
+            statusEl.className = 'sakhi-status listening';
+            recognition.lang = langSelect.value;
+            try { recognition.start(); } catch (e) { }
+        });
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            micBtn.classList.remove('recording');
+            statusEl.textContent = '📤 Sending...';
+            statusEl.className = 'sakhi-status sending';
+            sendMessage(transcript);
+        };
+
+        recognition.onerror = () => {
+            micBtn.classList.remove('recording');
+            statusEl.textContent = 'Could not hear. Tap 🎤 again.';
+            statusEl.className = 'sakhi-status';
+        };
+
+        recognition.onend = () => {
+            micBtn.classList.remove('recording');
+        };
+    } else {
+        micBtn.style.display = 'none';
+    }
+
+    // --- SEND MESSAGE ---
+    async function sendMessage(text) {
+        if (!text) return;
+        textInput.value = '';
+
+        addMsg(text, 'user');
+        const loadId = addMsg('...', 'bot', true);
+        statusEl.textContent = '🤔 Thinking...';
+        statusEl.className = 'sakhi-status sending';
+
+        try {
+            const response = await fetch('{% url "chatbot_api" %}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify({ message: text, lang: langSelect.value })
+            });
+            const data = await response.json();
+            // Remove loading
+            const loadEl = document.getElementById(loadId);
+            if (loadEl) loadEl.remove();
+
+            // Add with typewriter
+            const botId = addMsg('', 'bot');
+            const contentEl = document.getElementById(botId).querySelector('.s-bot-text');
+            typewriterEffect(contentEl, data.reply || 'Sorry, no response.', () => {
+                statusEl.textContent = 'Tap 🎤 to speak';
+                statusEl.className = 'sakhi-status';
+            });
+
+            // Speak response
+            speakText(data.reply, langSelect.value);
+        } catch (err) {
+            const loadEl = document.getElementById(loadId);
+            if (loadEl) loadEl.remove();
+            addMsg('⚠️ Network error. Check your connection.', 'bot');
+            statusEl.textContent = 'Tap 🎤 to speak';
+            statusEl.className = 'sakhi-status';
+        }
+    }
+
+    // --- ADD MESSAGE ---
+    function addMsg(text, sender, isLoading = false) {
+        const div = document.createElement('div');
+        const id = 'msg-' + Date.now() + Math.random().toString(36).slice(2, 5);
+        div.id = id;
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        if (sender === 'user') {
+            div.className = 's-msg-user';
+            div.innerHTML = `${text}<span class="s-msg-time">${time}</span>`;
+        } else {
+            div.className = 's-msg-bot';
+            div.innerHTML = `<div class="s-bot-avatar">S</div><div><span class="s-bot-text">${isLoading ? '⏳' : text}</span><span class="s-msg-time">${time}</span></div>`;
+        }
+
+        messagesBox.appendChild(div);
+        messagesBox.scrollTo({ top: messagesBox.scrollHeight, behavior: 'smooth' });
+        return id;
+    }
+
+    // --- TYPEWRITER EFFECT (Streaming feel) ---
+    function typewriterEffect(el, fullText, onDone) {
+        // Clean markdown
+        const clean = fullText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^\*\s(.*)$/gm, '<br>• $1');
+        let i = 0;
+        el.innerHTML = '<span class="typewriter-cursor"></span>';
+
+        const speed = Math.max(8, Math.min(25, 1500 / clean.length)); // adaptive speed
+
+        function type() {
+            if (i < clean.length) {
+                // Handle HTML tags — insert whole tag at once
+                if (clean[i] === '<') {
+                    const closeIdx = clean.indexOf('>', i);
+                    if (closeIdx !== -1) {
+                        const cursor = el.querySelector('.typewriter-cursor');
+                        if (cursor) cursor.remove();
+                        el.innerHTML = clean.substring(0, closeIdx + 1) + '<span class="typewriter-cursor"></span>';
+                        i = closeIdx + 1;
+                    } else {
+                        i++;
+                    }
+                } else {
+                    const cursor = el.querySelector('.typewriter-cursor');
+                    if (cursor) cursor.remove();
+                    el.innerHTML = clean.substring(0, i + 1) + '<span class="typewriter-cursor"></span>';
+                    i++;
+                }
+                setTimeout(type, speed);
+            } else {
+                const cursor = el.querySelector('.typewriter-cursor');
+                if (cursor) cursor.remove();
+                el.innerHTML = clean;
+                if (onDone) onDone();
+            }
+        }
+        type();
+    }
+
+    // --- SPEAK TEXT (Force Female Indian Voice) ---
+    function speakText(text, lang) {
+        window.speechSynthesis.cancel();
+        isSpeaking = true;
+        const cleanText = text.replace(/[\*#]/g, '');
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.rate = 0.95;
+
+        const voices = window.speechSynthesis.getVoices();
+        const langShort = lang.split('-')[0];
+
+        // Priority: Female Hindi > lang match > Indian English > any
+        const femaleHindi = voices.find(v =>
+            (v.name.toLowerCase().includes('hindi') || v.name.includes('हिन्दी') ||
+                v.name.toLowerCase().includes('veena') || v.name.toLowerCase().includes('lekha')) &&
+            !v.name.toLowerCase().includes('male')
+        );
+        const langMatch = voices.find(v => v.lang.startsWith(langShort));
+        const indianEn = voices.find(v => v.lang === 'en-IN');
+
+        if (femaleHindi && langShort === 'hi') utterance.voice = femaleHindi;
+        else if (langMatch) utterance.voice = langMatch;
+        else if (indianEn) utterance.voice = indianEn;
+        else if (femaleHindi) utterance.voice = femaleHindi;
+
+        utterance.onend = () => { isSpeaking = false; };
+        window.speechSynthesis.speak(utterance);
+    }
+
+    stopSpeechBtn.addEventListener('click', () => {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+    });
+
+    // Pre-load voices
+    if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = () => { };
+        window.speechSynthesis.getVoices();
+    }
+</script>
+{% endblock %}

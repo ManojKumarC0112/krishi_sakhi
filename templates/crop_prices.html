@@ -1,0 +1,843 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}&#128200; Sales Hub &ndash; {{ data.primary_crop|default:"Market" }} &ndash; Krishi Sakhi{% endblock %}
+
+{% block styles %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    background: #f1f8f1;
+  }
+
+  .sh-wrap {
+    max-width: 1050px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
+  /* HERO */
+  .hero-card {
+    background: linear-gradient(135deg, #1b5e20, #2e7d32);
+    border-radius: 18px;
+    padding: 1.4rem 1.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    color: #fff;
+    box-shadow: 0 6px 24px rgba(27, 94, 32, .3);
+  }
+
+  .hero-left h2 {
+    font-size: .95rem;
+    font-weight: 400;
+    opacity: .8;
+    margin-bottom: .2rem;
+  }
+
+  .hero-crop {
+    font-size: 1.6rem;
+    font-weight: 800;
+  }
+
+  .hero-price .lbl {
+    font-size: .78rem;
+    opacity: .8;
+  }
+
+  .hero-price .val {
+    font-size: 1.8rem;
+    font-weight: 800;
+  }
+
+  .yield-box {
+    background: rgba(255, 255, 255, .15);
+    border-radius: 12px;
+    padding: .8rem 1.2rem;
+    border: 1px solid rgba(255, 255, 255, .25);
+  }
+
+  .yield-box .yl {
+    font-size: .75rem;
+    opacity: .8;
+  }
+
+  .yield-box .yv {
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+
+  .yield-box .yu {
+    font-size: .78rem;
+    opacity: .7;
+  }
+
+  /* BEST WEEK BANNER */
+  .bw-banner {
+    background: linear-gradient(135deg, #ff8f00, #ffca28);
+    border-radius: 14px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 12px rgba(255, 143, 0, .25);
+  }
+
+  .bw-icon {
+    font-size: 1.6rem;
+  }
+
+  .bw-text h3 {
+    font-size: .9rem;
+    font-weight: 700;
+    color: #4a3000;
+    margin-bottom: .15rem;
+  }
+
+  .bw-text p {
+    font-size: .82rem;
+    color: #5d3f00;
+  }
+
+  /* BEST MANDI */
+  .mandi-bar {
+    background: #fff;
+    border-radius: 14px;
+    padding: .9rem 1.3rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
+    flex-wrap: wrap;
+  }
+
+  .mandi-bar h4 {
+    font-size: .85rem;
+    font-weight: 700;
+    color: #1b5e20;
+    margin: 0;
+  }
+
+  .mandi-chip {
+    display: inline-block;
+    background: #e8f5e9;
+    color: #1b5e20;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: .78rem;
+    font-weight: 600;
+    margin: 2px;
+    border: 1px solid #c8e6c9;
+  }
+
+  /* GRID */
+  .sh-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 1.2rem;
+  }
+
+  @media(max-width:850px) {
+    .sh-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* CARDS */
+  .sh-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.2rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .06);
+    margin-bottom: 1rem;
+  }
+
+  .sh-card h3 {
+    color: #1b5e20;
+    font-size: .88rem;
+    margin-bottom: .8rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-weight: 700;
+  }
+
+  /* BUYER LEADS */
+  .buyer-card {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: .85rem;
+    margin-bottom: .7rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .5rem;
+    transition: box-shadow .2s;
+  }
+
+  .buyer-card:hover {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .09);
+  }
+
+  .buyer-info h4 {
+    font-size: .88rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: .15rem;
+  }
+
+  .buyer-info p {
+    font-size: .76rem;
+    color: #777;
+    margin: 0;
+  }
+
+  .interest-tag {
+    display: inline-block;
+    background: #e8f5e9;
+    color: #1b5e20;
+    font-size: .7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 14px;
+    margin-top: .2rem;
+  }
+
+  .contact-btns {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  .btn-call {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1b6e20, #4caf50);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: transform .15s;
+  }
+
+  .btn-call:hover {
+    transform: scale(1.05);
+  }
+
+  .btn-whatsapp {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #128C7E, #25D366);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: transform .15s;
+  }
+
+  .btn-whatsapp:hover {
+    transform: scale(1.05);
+  }
+
+  /* TRANSPORTER */
+  .transporter-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #e65100, #ff9800);
+    color: #fff;
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .2s;
+    margin-bottom: .6rem;
+  }
+
+  .transporter-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  /* PESTICIDE LINKS */
+  .pesticide-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .6rem .8rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: .5rem;
+    background: #fafafa;
+  }
+
+  .pesticide-item .pname {
+    font-size: .82rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .pesticide-item .pbuy {
+    padding: 5px 12px;
+    background: #1b5e20;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: .75rem;
+    font-weight: 700;
+  }
+
+  /* FORECAST CHIPS */
+  .forecast-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: .5rem;
+  }
+
+  .fcast-chip {
+    background: #f5fff5;
+    border: 1px solid #c8e6c9;
+    border-radius: 8px;
+    padding: 6px 10px;
+    min-width: 100px;
+  }
+
+  .fcast-chip .fd {
+    font-weight: 700;
+    font-size: .78rem;
+    color: #1b5e20;
+  }
+
+  .fcast-chip .fp {
+    color: #555;
+    font-size: .76rem;
+  }
+
+  /* CHART */
+  .chart-wrap {
+    width: 100%;
+    height: 180px;
+    margin-top: .4rem;
+  }
+
+  /* NEWS */
+  .news-item {
+    padding: .6rem 0;
+    border-top: 1px solid #eee;
+  }
+
+  .news-item:first-child {
+    border-top: none;
+  }
+
+  .news-item a {
+    color: #1b5e20;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: .82rem;
+  }
+
+  .news-item .src {
+    font-size: .72rem;
+    color: #aaa;
+    margin-top: .15rem;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open {
+    display: flex;
+  }
+
+  .modal-box {
+    background: #fff;
+    border-radius: 18px;
+    padding: 1.8rem;
+    max-width: 400px;
+    width: 90%;
+  }
+
+  .modal-box h3 {
+    color: #1b5e20;
+    margin-bottom: .8rem;
+    font-size: .95rem;
+  }
+
+  .provider-card {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: .8rem;
+    margin-bottom: .6rem;
+  }
+
+  .provider-card h4 {
+    font-size: .85rem;
+    font-weight: 700;
+  }
+
+  .provider-card p {
+    font-size: .76rem;
+    color: #666;
+    margin: .15rem 0;
+  }
+
+  .btn-close-modal {
+    padding: 9px;
+    border: none;
+    border-radius: 8px;
+    background: #eee;
+    cursor: pointer;
+    font-weight: 700;
+    width: 100%;
+    margin-top: .4rem;
+  }
+
+  .muted {
+    color: #888;
+    font-size: .78rem;
+  }
+
+  .search-row {
+    display: flex;
+    gap: .8rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .search-row label {
+    font-size: .78rem;
+    font-weight: 600;
+    color: #555;
+    display: block;
+    margin-bottom: .25rem;
+  }
+
+  .search-row input {
+    padding: 9px 12px;
+    border-radius: 9px;
+    border: 2px solid #ddd;
+    font-family: 'Outfit', sans-serif;
+    font-size: .85rem;
+    outline: none;
+  }
+
+  .search-row input:focus {
+    border-color: #4caf50;
+  }
+
+  .btn-go {
+    padding: 9px 18px;
+    background: #2e7d32;
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: .85rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sh-wrap">
+
+  <!-- HERO -->
+  <div class="hero-card" id="hero-sales-hub">
+    <div class="hero-left">
+      <h2>&#128200; Strategic Sales Hub</h2>
+      <div class="hero-crop">&#127991;&#65039; {{ data.primary_crop|default:"Your Crop" }}</div>
+      <div class="hero-price" style="margin-top:.6rem;">
+        <div class="lbl">Current Mandi Price</div>
+        {% if data.current_price %}
+        <div class="val">
+          &#8377;{{ data.current_price }}
+          <span style="font-size:.85rem;opacity:.8;">/ {{ data.unit|default:"Quintal" }}</span>
+        </div>
+        {% else %}
+        <div class="val" style="font-size:1rem;">Fetching&hellip;</div>
+        {% endif %}
+      </div>
+    </div>
+    <div>
+      <div class="yield-box">
+        <div class="yl">&#128302; Predicted Yield</div>
+        {% if data.yield_estimate_quintals %}
+        <div class="yv">{{ data.yield_estimate_quintals }} <span class="yu">Quintals</span></div>
+        <div class="yu">for {{ data.area_ha|default:1 }} hectare(s)</div>
+        {% else %}
+        <div class="yv" style="font-size:.9rem;">Set crop below</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- BEST WEEK BANNER -->
+  {% if data.best_week_to_sell %}
+  <div class="bw-banner" id="best-week-banner">
+    <div class="bw-icon">&#128197;</div>
+    <div class="bw-text">
+      <h3>Best Week to Sell</h3>
+      <p>{{ data.best_week_to_sell }}</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- BEST MANDI -->
+  <div class="mandi-bar" id="mandi-bar">
+    <h4>&#127963; Nearest Mandis</h4>
+    {% if data.mandis %}
+    {% for m in data.mandis %}
+    <span class="mandi-chip">&#128205; {{ m }}</span>
+    {% endfor %}
+    {% else %}
+    <span class="muted">No mandi data available.</span>
+    {% endif %}
+  </div>
+
+  <!-- AREA SELECTOR -->
+  <div class="sh-card" style="margin-bottom:1.2rem;">
+    <h3>&#127807; Update Your Farm</h3>
+    <form method="GET" class="search-row">
+      <div>
+        <label>Crop</label>
+        <input type="text" name="crop" value="{{ data.primary_crop|default:'' }}" placeholder="e.g. Wheat"
+          style="width:150px;">
+      </div>
+      <div>
+        <label>Area (hectares)</label>
+        <input type="number" name="area" value="{{ data.area_ha|default:1 }}" min="0.1" step="0.1" style="width:110px;">
+      </div>
+      <button type="submit" class="btn-go">Recalculate &#128260;</button>
+    </form>
+  </div>
+
+  <div class="sh-grid">
+
+    <!-- LEFT COLUMN -->
+    <div>
+
+      <!-- AI Highlight -->
+      {% if data.highlight %}
+      <div class="sh-card" style="background:linear-gradient(135deg,#f1f8e9,#e8f5e9);border:2px solid #a5d6a7;">
+        <h3>&#128161; AI Market Insight</h3>
+        <p style="color:#444;line-height:1.55;font-size:.85rem;">{{ data.highlight }}</p>
+        {% if data.best_day.date %}
+        <div style="margin-top:.8rem;padding-top:.6rem;border-top:1px solid #c8e6c9;font-size:.82rem;">
+          <strong style="color:#1b5e20;">Best Day:</strong>
+          <span style="color:#555;margin-left:.4rem;">{{ data.best_day.date }} &ndash; &#8377;{{
+            data.best_day.predicted_price }}</span>
+        </div>
+        {% endif %}
+        {% if data.advice %}
+        <div style="margin-top:.6rem;font-size:.82rem;">
+          <strong style="color:#1b5e20;">Smart Advice:</strong>
+          <p style="color:#666;margin-top:.2rem;">{{ data.advice }}</p>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Buyer Leads -->
+      <div class="sh-card" id="buyer-leads">
+        <h3>&#129336; Verified Buyer Leads <span class="muted">({{ data.primary_crop }})</span></h3>
+        {% for b in data.buyer_leads %}
+        <div class="buyer-card">
+          <div class="buyer-info" style="flex:1;">
+            <h4>{{ b.name }}</h4>
+            <p>{{ b.notes }}</p>
+            <span class="interest-tag">{{ b.interest }}</span>
+          </div>
+          <div class="contact-btns">
+            {% if b.phone %}
+            <a href="tel:{{ b.phone }}" class="btn-call">&#128222; Call</a>
+            <a href="https://wa.me/91{{ b.phone }}?text=Hello%20{{ b.name }}%2C%20I%20am%20selling%20{{ data.primary_crop }}%20from%20{{ data.area_ha|default:1 }}%20hectares.%20Interested%3F"
+              target="_blank" class="btn-whatsapp">&#128172; WhatsApp</a>
+            {% else %}
+            <button class="btn-call"
+              onclick="speakBuyerLead('{{ b.name }}','{{ b.interest }}','{{ b.contact }}')">&#128266; Info</button>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <p class="muted">Buyer leads are being fetched&hellip;</p>
+        {% endfor %}
+        <p class="muted" style="margin-top:.5rem;">&#128161; Get buyer details via your local APMC office or KVK (Krishi
+          Vigyan Kendra).</p>
+      </div>
+
+      <!-- Logistics -->
+      <div class="sh-card">
+        <h3>&#128667; Logistics &amp; Transport</h3>
+        <p style="color:#666;font-size:.82rem;margin-bottom:.8rem;">Find a transporter to move your {{ data.primary_crop
+          }} to the mandi.</p>
+        <button class="transporter-btn" id="transporter-btn" onclick="callTransporter()">&#128222; Find Nearby
+          Transporters</button>
+        <div id="transporter-results"></div>
+      </div>
+
+      <!-- Pesticide Shop Links -->
+      <div class="sh-card" id="pesticide-section">
+        <h3>&#129514; Buy Pesticides / Inputs</h3>
+        <p style="color:#666;font-size:.78rem;margin-bottom:.7rem;">Trusted online stores where you can buy
+          crop-specific inputs:</p>
+        <div class="pesticide-item">
+          <span class="pname">Bayer CropScience &ndash; Fungicides &amp; Insecticides</span>
+          <a href="https://www.bigbasket.com/cl/agro-products/" target="_blank" class="pbuy">&#128722; Shop</a>
+        </div>
+        <div class="pesticide-item">
+          <span class="pname">AgroStar &ndash; Smart Farming Inputs</span>
+          <a href="https://www.agrostar.in/" target="_blank" class="pbuy">&#128722; Shop</a>
+        </div>
+        <div class="pesticide-item">
+          <span class="pname">BigHaat &ndash; Seeds, Pesticides, Fertilizers</span>
+          <a href="https://www.bighaat.com/" target="_blank" class="pbuy">&#128722; Shop</a>
+        </div>
+        <div class="pesticide-item">
+          <span class="pname">Kissan Kendra &ndash; Govt. subsidized inputs</span>
+          <a href="https://agri.cg.gov.in/" target="_blank" class="pbuy">&#128722; Shop</a>
+        </div>
+        <div class="pesticide-item">
+          <span class="pname">DeHaat &ndash; Hyperlocal agri marketplace</span>
+          <a href="https://dehaat.com/" target="_blank" class="pbuy">&#128722; Shop</a>
+        </div>
+      </div>
+
+      <!-- 14-day Forecast chips -->
+      <div class="sh-card">
+        <h3>&#128302; 14-Day Price Forecast</h3>
+        <div class="forecast-wrap">
+          {% if data.forecast %}
+          {% for f in data.forecast %}
+          <div class="fcast-chip">
+            <div class="fd">{{ f.date }}</div>
+            <div class="fp">&#8377;{{ f.predicted_price }}</div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <span class="muted">No forecast data available.</span>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+
+      <!-- Price Chart -->
+      <div class="sh-card" id="price-chart-card">
+        <h3>&#128200; 30-Day Price Trend</h3>
+        <div class="chart-wrap">
+          <canvas id="priceChart"></canvas>
+        </div>
+        {% if not data.history %}
+        <p class="muted" style="text-align:center;margin-top:.5rem;">No historical data for chart.</p>
+        {% endif %}
+      </div>
+
+      <!-- Market News -->
+      <div class="sh-card">
+        <h3>&#128240; Market News</h3>
+        {% if data.news %}
+        {% for n in data.news %}
+        <div class="news-item">
+          <a href="{{ n.url }}" target="_blank">{{ n.title }}</a>
+          <div class="src">{{ n.source }}</div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="muted">No news available.</p>
+        {% endif %}
+      </div>
+
+      <!-- Data source note -->
+      <div class="sh-card" style="background:#fffde7; border:1px solid #ffe082;">
+        <h3>&#8505;&#65039; Data Source</h3>
+        <p style="font-size:.76rem; color:#666; line-height:1.5;">
+          Prices sourced from AI analysis based on <strong>Agmarknet</strong>.
+          For real-time official prices visit:
+          <a href="https://agmarknet.gov.in/" target="_blank" style="color:#1b5e20;">agmarknet.gov.in</a><br>
+          Buyer contact details can be obtained from your local <strong>APMC office</strong> or
+          <strong>KVK (Krishi Vigyan Kendra)</strong>.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- JSON data for chart -->
+{{ data.history|default:"[]"|json_script:"price-history-data" }}
+{{ data.forecast|default:"[]"|json_script:"price-forecast-data" }}
+
+<!-- Logistics Modal -->
+<div class="modal-overlay" id="logisticsModal">
+  <div class="modal-box">
+    <h3>&#128667; Nearby Logistics Providers</h3>
+    <div id="provider-list">
+      <p style="color:#888;">Loading&hellip;</p>
+    </div>
+    <button class="btn-close-modal" onclick="closeModal()">Close &times;</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  const voiceLang = "{{ voice_lang|default:'hi-IN' }}";
+
+  // -- Price Chart --
+  (function () {
+    const histEl = document.getElementById('price-history-data');
+    const foreEl = document.getElementById('price-forecast-data');
+    let history = [];
+    let forecast = [];
+    try { if (histEl) history = JSON.parse(histEl.textContent); } catch (e) { }
+    try { if (foreEl) forecast = JSON.parse(foreEl.textContent); } catch (e) { }
+
+    const chartData = history.length > 0 ? history : forecast.map(f => ({ date: f.date, price: f.predicted_price }));
+
+    const ctx = document.getElementById('priceChart');
+    if (!ctx || chartData.length === 0) {
+      if (ctx) { const c = ctx.getContext('2d'); c.font = "13px Arial"; c.fillStyle = "#aaa"; c.fillText("No price trend data yet.", 20, 50); }
+      return;
+    }
+    chartData.sort((a, b) => new Date(a.date) - new Date(b.date));
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartData.map(x => x.date),
+        datasets: [{
+          label: 'Price \u20B9/Quintal',
+          data: chartData.map(x => parseFloat(x.price || x.predicted_price || 0)),
+          borderColor: '#2e7d32', backgroundColor: 'rgba(46,125,50,0.12)',
+          fill: true, tension: 0.35, borderWidth: 2.5, pointRadius: 3,
+          pointBackgroundColor: '#2e7d32',
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '\u20B9' + ctx.parsed.y } } },
+        scales: {
+          y: { ticks: { callback: v => '\u20B9' + v, font: { size: 10 } }, grid: { color: '#f0f0f0' } },
+          x: { ticks: { font: { size: 9 }, maxTicksLimit: 8 }, grid: { display: false } }
+        }
+      }
+    });
+  })();
+
+  // -- Buyer Lead Voice --
+  function speakBuyerLead(name, interest, contact) {
+    const msgs = {
+      'hi-IN': `\u092E\u0948\u0902\u0928\u0947 \u0916\u0930\u0940\u0926\u093E\u0930 ${name} \u0916\u094B\u091C\u093E \u0939\u0948\u0964 \u0938\u0902\u092A\u0930\u094D\u0915: ${contact}\u0964`,
+      'kn-IN': `${name} \u0C96\u0CB0\u0CC0\u0CA6\u0CBF\u0CA6\u0CBE\u0CB0 \u0CB8\u0CBF\u0C95\u0CCD\u0C95\u0CBF\u0CA6\u0CCD\u0CA6\u0CBE\u0CB0\u0CC6. \u0CB8\u0C82\u0CAA\u0CB0\u0CCD\u0C95: ${contact}.`,
+      'en-US': `I found buyer ${name}. Contact: ${contact}.`,
+    };
+    const text = msgs[voiceLang] || msgs['en-US'];
+    if ('speakLocalText' in window) speakLocalText(text);
+    alert(`\uD83E\uDD1D ${name}\n\uD83D\uDCDE Contact: ${contact}\n\n\uD83D\uDCA1 Visit your local APMC or KVK to get buyer phone numbers.`);
+  }
+
+  // -- Transporters --
+  function callTransporter() {
+    document.getElementById('logisticsModal').classList.add('open');
+    fetch('/api/call-logistics/')
+      .then(r => r.json())
+      .then(data => {
+        const providers = data.providers || [];
+        const el = document.getElementById('provider-list');
+        if (providers.length === 0) {
+          el.innerHTML = '<p style="color:#888;">No providers found. Call your local APMC.</p>';
+          return;
+        }
+        el.innerHTML = providers.map(p => `
+          <div class="provider-card">
+            <h4>&#128667; ${p.name}</h4>
+            <p>Type: ${p.type} &nbsp;|&nbsp; &#11088; ${p.rating}</p>
+            <p>${p.notes}</p>
+            ${p.phone ? `<a href="tel:${p.phone}" style="color:#1b6e20;font-weight:600;">&#128222; ${p.phone}</a>` :
+            `<a href="tel:${p.contact}" style="color:#1b6e20;font-weight:600;">&#128222; ${p.contact}</a>`}
+          </div>
+        `).join('');
+      })
+      .catch(() => {
+        document.getElementById('provider-list').innerHTML =
+          '<p style="color:#c62828;">Could not fetch. Please try again.</p>';
+      });
+  }
+
+  function closeModal() {
+    document.getElementById('logisticsModal').classList.remove('open');
+  }
+
+  // -- Page Tour --
+  window.pageTourSteps = [
+    {
+      target: 'hero-sales-hub', title: '\uD83C\uDF3E Sales Hub', desc: 'See today\'s mandi price and AI predicted yield for your land.',
+      title_hi: '\uD83C\uDF3E \u092C\u093F\u0915\u094D\u0930\u0940 \u0939\u092C', desc_hi: '\u0906\u091C \u0915\u093E \u092E\u0902\u0921\u0940 \u092D\u093E\u0935 \u0914\u0930 \u0905\u092A\u0928\u0940 \u091C\u092E\u0940\u0928 \u0915\u0940 AI \u092A\u0948\u0926\u093E\u0935\u093E\u0930 \u092F\u0939\u093E\u0901 \u0926\u0947\u0916\u0947\u0902\u0964',
+      title_kn: '\uD83C\uDF3E \u0CAE\u0CBE\u0CB0\u0CBE\u0C9F \u0CB9\u0CAC\u0CCD', desc_kn: '\u0C87\u0C82\u0CA6\u0CBF\u0CA8 \u0CAE\u0C82\u0CA1\u0CBF \u0CAC\u0CC6\u0CB2\u0CC6 \u0CAE\u0CA4\u0CCD\u0CA4\u0CC1 AI \u0C87\u0CB3\u0CC1\u0CB5\u0CB0\u0CBF \u0C87\u0CB2\u0CCD\u0CB2\u0CBF \u0CA8\u0CCB\u0CA1\u0CBF.'
+    },
+    {
+      target: 'best-week-banner', title: '\uD83D\uDCC5 Best Week to Sell', desc: 'AI recommends the best week based on market trends.',
+      title_hi: '\uD83D\uDCC5 \u092C\u0947\u091A\u0928\u0947 \u0915\u093E \u0938\u0939\u0940 \u0938\u092E\u092F', desc_hi: 'AI \u092C\u093E\u091C\u093C\u093E\u0930 \u0915\u0947 \u0930\u0941\u091D\u093E\u0928 \u0938\u0947 \u0938\u0939\u0940 \u0938\u092E\u092F \u092C\u0924\u093E\u0924\u093E \u0939\u0948\u0964',
+      title_kn: '\uD83D\uDCC5 \u0CAE\u0CBE\u0CB0\u0CBE\u0C9F\u0C95\u0CCD\u0C95\u0CC6 \u0C89\u0CA4\u0CCD\u0CA4\u0CAE \u0CB8\u0CAE\u0CAF', desc_kn: 'AI \u0CAE\u0CBE\u0CB0\u0CC1\u0C95\u0C9F\u0CCD\u0C9F\u0CC6 \u0CAA\u0CCD\u0CB0\u0CB5\u0CC3\u0CA4\u0CCD\u0CA4\u0CBF \u0C86\u0CA7\u0CBE\u0CB0\u0CA6\u0CB2\u0CCD\u0CB2\u0CBF \u0CB8\u0CB0\u0CBF\u0CAF\u0CBE\u0CA6 \u0CB8\u0CAE\u0CAF \u0CA4\u0CBF\u0CB3\u0CBF\u0CB8\u0CC1\u0CA4\u0CCD\u0CA4\u0CA6\u0CC6.'
+    },
+    {
+      target: 'buyer-leads', title: '\uD83E\uDD1D Buyer Leads', desc: 'Click Call or WhatsApp to contact buyers directly.',
+      title_hi: '\uD83E\uDD1D \u0916\u0930\u0940\u0926\u093E\u0930', desc_hi: '\u0938\u0940\u0927\u0947 \u0915\u0949\u0932 \u092F\u093E \u0935\u094D\u0939\u093E\u091F\u094D\u0938\u090F\u092A \u0938\u0947 \u0916\u0930\u0940\u0926\u093E\u0930\u094B\u0902 \u0938\u0947 \u091C\u0941\u0921\u093C\u0947\u0902\u0964',
+      title_kn: '\uD83E\uDD1D \u0C96\u0CB0\u0CC0\u0CA6\u0CBF\u0CA6\u0CBE\u0CB0\u0CB0\u0CC1', desc_kn: '\u0CA8\u0CC7\u0CB0 \u0C95\u0CBE\u0CB2\u0CCD \u0C85\u0CA5\u0CB5\u0CBE \u0CB5\u0CBE\u0C9F\u0CCD\u0CB8\u0CBE\u0CAA\u0CCD \u0CAE\u0CC2\u0CB2\u0C95 \u0C96\u0CB0\u0CC0\u0CA6\u0CBF\u0CA6\u0CBE\u0CB0\u0CB0\u0CA8\u0CCD\u0CA8\u0CC1 \u0CB8\u0C82\u0CAA\u0CB0\u0CCD\u0C95\u0CBF\u0CB8\u0CBF.'
+    },
+    {
+      target: 'transporter-btn', title: '\uD83D\uDE9B Call Transporter', desc: 'Tap to find local logistics to take your harvest to the mandi.',
+      title_hi: '\uD83D\uDE9B \u091F\u094D\u0930\u093E\u0928\u094D\u0938\u092A\u094B\u0930\u094D\u091F\u0930', desc_hi: '\u092E\u0902\u0921\u0940 \u0924\u0915 \u092B\u0938\u0932 \u092D\u0947\u091C\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u0928\u091C\u0926\u0940\u0915\u0940 \u091F\u094D\u0930\u093E\u0928\u094D\u0938\u092A\u094B\u0930\u094D\u091F\u0930 \u0916\u094B\u091C\u0947\u0902\u0964',
+      title_kn: '\uD83D\uDE9B \u0CB8\u0CBE\u0CB0\u0CBF\u0C97\u0CC6', desc_kn: '\u0CAE\u0C82\u0CA1\u0CBF\u0C97\u0CC6 \u0C95\u0CCB\u0CAF\u0CCD\u0CB2\u0CC1 \u0CA4\u0CB2\u0CC1\u0CAA\u0CBF\u0CB8\u0CB2\u0CC1 \u0CB8\u0CCD\u0CA5\u0CB3\u0CC0\u0CAF \u0CB8\u0CBE\u0CB0\u0CBF\u0C97\u0CC6 \u0CB9\u0CC1\u0CA1\u0CC1\u0C95\u0CBF.'
+    },
+    {
+      target: 'pesticide-section', title: '\uD83E\uDDEA Buy Pesticides', desc: 'Tap Shop to buy pesticides, seeds and fertilisers online.',
+      title_hi: '\uD83E\uDDEA \u0915\u0940\u091F\u0928\u093E\u0936\u0915 \u0916\u0930\u0940\u0926\u0947\u0902', desc_hi: '\u0915\u0940\u091F\u0928\u093E\u0936\u0915, \u092C\u0940\u091C \u0914\u0930 \u0916\u093E\u0926 \u0911\u0928\u0932\u093E\u0907\u0928 \u0916\u0930\u0940\u0926\u0947\u0902\u0964',
+      title_kn: '\uD83E\uDDEA \u0C95\u0CC0\u0C9F\u0CA8\u0CBE\u0CB6\u0C95 \u0C96\u0CB0\u0CC0\u0CA6\u0CBF', desc_kn: '\u0C95\u0CC0\u0C9F\u0CA8\u0CBE\u0CB6\u0C95, \u0C2C\u0CC0\u0C9C \u0CAE\u0CA4\u0CCD\u0CA4\u0CC1 \u0C97\u0CCB\u0CAC\u0CCD\u0CAC\u0CB0 \u0C86\u0CA8\u0CCD\u200C\u0CB2\u0CC8\u0CA8\u0CCD\u200C\u0CA8\u0CB2\u0CCD\u0CB2\u0CBF \u0C96\u0CB0\u0CC0\u0CA6\u0CBF\u0CB8\u0CBF.'
+    },
+  ];
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const msgs = {
+        'hi-IN': "\u092C\u093E\u091C\u093C\u093E\u0930 \u0939\u092C \u092E\u0947\u0902 \u0906\u092A\u0915\u093E \u0938\u094D\u0935\u093E\u0917\u0924 \u0939\u0948\u0964",
+        'kn-IN': "\u0CAE\u0CBE\u0CB0\u0CC1\u0C95\u0C9F\u0CCD\u0C9F\u0CC6 \u0CB9\u0CAC\u0CCD\u200C\u0C97\u0CC6 \u0CB8\u0CCD\u0CB5\u0CBE\u0C97\u0CA4.",
+        'ta-IN': "\u0B9A\u0BA8\u0BCD\u0BA4\u0BC8 \u0BAE\u0BC8\u0BAF\u0BA4\u0BCD\u0BA4\u0BBF\u0BB1\u0BCD\u0B95\u0BC1 \u0BB5\u0BB0\u0BB5\u0BC7\u0BB1\u0BCD\u0B95\u0BBF\u0BB1\u0BCB\u0BAE\u0BCD.",
+        'te-IN': "\u0C2E\u0C3E\u0C30\u0C4D\u0C15\u0C46\u0C1F\u0C4D \u0C39\u0C2C\u0C4D\u200C\u0C15\u0C41 \u0C38\u0C4D\u0C35\u0C3E\u0C17\u0C24\u0C02.",
+        'en-US': "Welcome to the Sales Hub.",
+      };
+      if (typeof speakLocalText === 'function')
+        speakLocalText(msgs[voiceLang] || msgs['hi-IN']);
+    }, 1000);
+  });
+</script>
+{% endblock %}

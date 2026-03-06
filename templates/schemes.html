@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Government Schemes - Krishi Sakhi{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/schemes.css' %}">
+<style>
+    /* Responsive Overrides */
+    .schemes {
+        padding-top: 2rem; 
+        text-align: center;
+    }
+    
+    .scheme-container {
+        display: grid;
+        /* Mobile-friendly grid: Cards shrink to 280px but fill width */
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+
+    .scheme-card {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: #333;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+
+    .scheme-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        border-color: #a7d3a6;
+    }
+
+    .scheme-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f1f8e9;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .scheme-card-icon {
+        font-size: 2rem;
+    }
+
+    .scheme-card-header-text {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #2c5e2e;
+        text-align: left;
+    }
+
+    .scheme-card-content {
+        padding: 1.5rem;
+        text-align: left;
+        flex-grow: 1; /* Pushes footer down */
+    }
+
+    .scheme-tag {
+        display: inline-block;
+        font-size: 0.75rem;
+        background: #dcedc8;
+        color: #33691e;
+        padding: 3px 8px;
+        border-radius: 10px;
+        margin-top: 5px;
+    }
+
+    .scheme-footer {
+        padding: 10px;
+        background: #fafafa;
+        border-top: 1px solid #eee;
+        color: #4CAF50;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-align: right;
+    }
+
+    @media (max-width: 768px) {
+        .scheme-card-header {
+            /* On phone, stack icon and text if title is long */
+            align-items: flex-start; 
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="schemes">
+    <h1>Government Schemes for Farmers 🌾</h1>
+    <p>Live schemes fetched and categorized by Sakhi AI.</p>
+    
+    <div class="scheme-container">
+      {% if error %}
+        <p style="color: red; font-weight: bold;">{{ error }}</p>
+      {% else %}
+        
+        {% for scheme in schemes %}
+          <a class="scheme-card" href="{{ scheme.url }}" target="_blank">
+              
+              <div class="scheme-card-header">
+                  {% if 'KISAN' in scheme.name or 'Finance' in scheme.name or 'Nidhi' in scheme.name %}
+                      <div class="scheme-card-icon">💰</div>
+                      <div class="scheme-card-header-text">
+                          {{ scheme.name }}<br>
+                          <span class="scheme-tag">Financial Support</span>
+                      </div>
+                  {% elif 'PMFBY' in scheme.name or 'Insurance' in scheme.name or 'Fasal' in scheme.name %}
+                      <div class="scheme-card-icon">☂️</div>
+                      <div class="scheme-card-header-text">
+                          {{ scheme.name }}<br>
+                          <span class="scheme-tag">Crop Insurance</span>
+                      </div>
+                  {% elif 'Market' in scheme.name or 'eNAM' in scheme.name or 'Mandi' in scheme.name %}
+                      <div class="scheme-card-icon">📈</div>
+                      <div class="scheme-card-header-text">
+                          {{ scheme.name }}<br>
+                          <span class="scheme-tag">Market Linkage</span>
+                      </div>
+                  {% elif 'Soil' in scheme.name or 'Health' in scheme.name %}
+                      <div class="scheme-card-icon">🌱</div>
+                      <div class="scheme-card-header-text">
+                          {{ scheme.name }}<br>
+                          <span class="scheme-tag">Soil Health</span>
+                      </div>
+                  {% else %}
+                      <div class="scheme-card-icon">📄</div>
+                      <div class="scheme-card-header-text">
+                          {{ scheme.name }}<br>
+                          <span class="scheme-tag">General Scheme</span>
+                      </div>
+                  {% endif %}
+              </div>
+              
+              <div class="scheme-card-content">
+                  <p>{{ scheme.description }}</p>
+              </div>
+
+              <div class="scheme-footer">
+                  View Details &rarr;
+              </div>
+          </a>
+        {% empty %}
+          <p>No schemes found. Please check your internet connection or try again later.</p>
+        {% endfor %}
+        
+      {% endif %}
+    </div>
+</section>
+{% endblock %}

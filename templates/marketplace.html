@@ -1,0 +1,651 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sakhi Sahayog — Village Market{% endblock %}
+
+{% block styles %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap');
+
+    :root {
+        --green-deep: #1b5e20;
+        --green-mid: #2e7d32;
+        --green-light: #43a047;
+        --saffron: #e65100;
+        --cream: #fdfaf4;
+        --card-bg: #ffffff;
+        --radius: 14px;
+    }
+
+    body {
+        background: var(--cream);
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* ── HERO ── */
+    .mkt-hero {
+        background: linear-gradient(135deg, var(--green-deep) 0%, #004d40 100%);
+        color: #fff;
+        padding: 2rem 1.5rem 1.4rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mkt-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='20' cy='20' r='18'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .mkt-hero h1 {
+        font-size: 1.6rem;
+        font-weight: 900;
+        margin: 0 0 .3rem;
+        letter-spacing: -.3px;
+    }
+
+    .mkt-hero p {
+        font-size: .88rem;
+        opacity: .85;
+        margin: 0 0 .6rem;
+    }
+
+    .mkt-location-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: rgba(255, 255, 255, .18);
+        border: 1px solid rgba(255, 255, 255, .3);
+        border-radius: 20px;
+        padding: 4px 14px;
+        font-size: .78rem;
+        font-weight: 700;
+    }
+
+    /* ── VOICE BOLI BUTTON ── */
+    .boli-section {
+        text-align: center;
+        padding: 1.8rem 1.5rem 1rem;
+    }
+
+    .boli-label {
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .8px;
+        color: #888;
+        text-transform: uppercase;
+        margin-bottom: .9rem;
+    }
+
+    .boli-btn {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--green-deep), var(--green-light));
+        border: none;
+        color: #fff;
+        font-size: 2.2rem;
+        cursor: pointer;
+        position: relative;
+        box-shadow: 0 8px 28px rgba(27, 94, 32, .4);
+        transition: transform .2s;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .boli-btn:hover {
+        transform: scale(1.07);
+    }
+
+    .boli-btn.recording {
+        animation: pulse-ring 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-ring {
+        0% {
+            box-shadow: 0 0 0 0 rgba(67, 160, 71, .7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 22px rgba(67, 160, 71, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(67, 160, 71, 0);
+        }
+    }
+
+    .boli-hint {
+        margin-top: .7rem;
+        font-size: .78rem;
+        color: #777;
+        line-height: 1.5;
+    }
+
+    /* ── CONFIRMATION CARD ── */
+    .confirm-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .5);
+        z-index: 9999;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    .confirm-overlay.show {
+        display: flex;
+    }
+
+    .confirm-sheet {
+        background: #fff;
+        border-radius: 24px 24px 0 0;
+        padding: 1.5rem;
+        width: 100%;
+        max-width: 550px;
+        animation: slideUp .3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    .confirm-sheet h3 {
+        color: var(--green-deep);
+        margin: 0 0 1rem;
+        font-size: 1.1rem;
+    }
+
+    .conf-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: .5rem 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: .85rem;
+    }
+
+    .conf-row:last-of-type {
+        border-bottom: none;
+    }
+
+    .conf-key {
+        color: #888;
+        font-weight: 600;
+    }
+
+    .conf-val {
+        color: #222;
+        font-weight: 700;
+    }
+
+    .conf-actions {
+        display: flex;
+        gap: .8rem;
+        margin-top: 1.2rem;
+    }
+
+    .conf-btn-ok {
+        flex: 1;
+        background: linear-gradient(135deg, var(--green-deep), var(--green-light));
+        color: #fff;
+        border: none;
+        padding: 12px;
+        border-radius: 12px;
+        font-size: .95rem;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .conf-btn-cancel {
+        flex: 1;
+        background: #f5f5f5;
+        color: #555;
+        border: 1.5px solid #ddd;
+        padding: 12px;
+        border-radius: 12px;
+        font-size: .95rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .exchange-badge {
+        display: inline-block;
+        background: #fff3e0;
+        color: var(--saffron);
+        border: 1.5px solid #ffcc80;
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: .72rem;
+        font-weight: 800;
+    }
+
+    /* ── TABS ── */
+    .mkt-tabs {
+        display: flex;
+        border-bottom: 2px solid #e8f5e9;
+        margin: 0 1rem;
+    }
+
+    .mkt-tab {
+        flex: 1;
+        padding: .8rem;
+        text-align: center;
+        font-weight: 700;
+        font-size: .85rem;
+        color: #888;
+        background: none;
+        border: none;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+        transition: all .2s;
+    }
+
+    .mkt-tab.active {
+        color: var(--green-deep);
+        border-bottom-color: var(--green-deep);
+    }
+
+    /* ── FEED GRID ── */
+    .mkt-feed {
+        padding: 1rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: .85rem;
+    }
+
+    .listing-card {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        padding: .95rem;
+        border: 1.5px solid #e8f5e9;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+        transition: transform .2s, box-shadow .2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .listing-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, .1);
+    }
+
+    .listing-cat {
+        font-size: .62rem;
+        font-weight: 800;
+        letter-spacing: .6px;
+        text-transform: uppercase;
+        color: var(--green-mid);
+        margin-bottom: .35rem;
+    }
+
+    .listing-name {
+        font-size: .92rem;
+        font-weight: 800;
+        color: #111;
+        margin-bottom: .2rem;
+        line-height: 1.3;
+    }
+
+    .listing-qty {
+        font-size: .75rem;
+        color: #777;
+        margin-bottom: .5rem;
+    }
+
+    .listing-price {
+        font-size: 1rem;
+        font-weight: 900;
+        color: var(--green-deep);
+    }
+
+    .listing-seller {
+        font-size: .68rem;
+        color: #aaa;
+        margin-top: .45rem;
+    }
+
+    .seed-guardian-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: linear-gradient(135deg, #f57f17, #ff6f00);
+        color: #fff;
+        border-radius: 20px;
+        padding: 2px 8px;
+        font-size: .6rem;
+        font-weight: 800;
+    }
+
+    .swap-label {
+        font-size: .8rem;
+        font-weight: 800;
+        color: var(--saffron);
+    }
+
+    /* ── EMPTY STATE ── */
+    .mkt-empty {
+        text-align: center;
+        padding: 3.5rem 1.5rem;
+        color: #aaa;
+    }
+
+    .mkt-empty-icon {
+        font-size: 3rem;
+        margin-bottom: .8rem;
+    }
+
+    .mkt-empty p {
+        font-size: .88rem;
+        line-height: 1.6;
+    }
+
+    /* ── STATUS TOAST ── */
+    .boli-status {
+        display: none;
+        margin: .6rem auto;
+        max-width: 380px;
+        background: #e8f5e9;
+        border: 1.5px solid #a5d6a7;
+        border-radius: 10px;
+        padding: .65rem 1rem;
+        font-size: .82rem;
+        color: var(--green-deep);
+        font-weight: 600;
+        text-align: center;
+    }
+
+    /* ── NO LOCATION WARNING ── */
+    .mkt-no-location {
+        margin: 1rem;
+        background: #fff8e1;
+        border: 1.5px solid #ffe082;
+        border-radius: 12px;
+        padding: 1rem;
+        font-size: .85rem;
+        color: #5d4037;
+        display: flex;
+        align-items: center;
+        gap: .8rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Confirmation Sheet (overlay) -->
+<div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-sheet">
+        <h3>&#x2714; &#x20; Confirm Listing — Sakhi Read-Back</h3>
+        <div class="conf-row"><span class="conf-key">Item</span><span class="conf-val" id="cf-name">—</span></div>
+        <div class="conf-row"><span class="conf-key">Quantity</span><span class="conf-val" id="cf-qty">—</span></div>
+        <div class="conf-row"><span class="conf-key">Price</span><span class="conf-val" id="cf-price">—</span></div>
+        <div class="conf-row"><span class="conf-key">Category</span><span class="conf-val" id="cf-cat">—</span></div>
+        <div class="conf-row"><span class="conf-key">Type</span><span class="conf-val" id="cf-type">—</span></div>
+        <div class="conf-actions">
+            <button class="conf-btn-cancel" id="conf-cancel">&#x2715; Re-record</button>
+            <button class="conf-btn-ok" id="conf-ok">&#x2714; List It!</button>
+        </div>
+    </div>
+</div>
+
+<!-- Hero -->
+<div class="mkt-hero">
+    <h1>&#x1F3AA; Sakhi Sahayog</h1>
+    <p>Your trusted village marketplace — within your community circle</p>
+    {% if has_location %}
+    <div class="mkt-location-tag">
+        <span translate="no">&#x1F4CD;</span>
+        <span>{{ user_location }}</span>
+    </div>
+    {% endif %}
+</div>
+
+{% if not has_location %}
+<div class="mkt-no-location">
+    <span translate="no" style="font-size:1.5rem;">&#x26A0;&#xFE0F;</span>
+    <div>
+        <strong>Set your village/location</strong> in
+        <a href="{% url 'personalize' %}" style="color: #1b5e20; font-weight:700;">My Farm settings</a>
+        to see listings from your community and list your own items.
+    </div>
+</div>
+{% endif %}
+
+<!-- Voice Boli Section -->
+<div class="boli-section">
+    <div class="boli-label">Speak to list your item</div>
+    <button class="boli-btn" id="boli-btn" title="Tap to speak your listing">
+        <span translate="no" id="boli-icon">&#x1F3A4;</span>
+    </button>
+    <div class="boli-hint">
+        Say: <em>"I have 3 kg of marigold seeds for 50 rupees"</em><br>
+        or <em>"I want to swap 2 kg of jowar seeds"</em>
+    </div>
+    <div class="boli-status" id="boli-status">&#x23F3; Listening...</div>
+</div>
+
+<!-- Tabs -->
+<div class="mkt-tabs">
+    <button class="mkt-tab active" id="tab-market" onclick="switchTab('market')">
+        &#x1F6D2; Local Market
+        <span id="tab-market-count" style="font-size:.7rem;font-weight:700;opacity:.6;margin-left:4px;">({{
+            listings|length }})</span>
+    </button>
+    <button class="mkt-tab" id="tab-seeds" onclick="switchTab('seeds')">
+        &#x1F33F; Seed Bank
+        <span id="tab-seeds-count" style="font-size:.7rem;font-weight:700;opacity:.6;margin-left:4px;">({{
+            seed_swaps|length }})</span>
+    </button>
+</div>
+
+<!-- Market Feed -->
+<div class="mkt-feed" id="feed-market">
+    {% for item in listings %}
+    <div class="listing-card">
+        <div class="listing-cat">{{ item.get_category_display }}</div>
+        <div class="listing-name">{{ item.item_name }}</div>
+        <div class="listing-qty">{{ item.quantity_str }}</div>
+        <div class="listing-price">&#x20B9;{{ item.price }}</div>
+        <div class="listing-seller">by {{ item.seller.first_name|default:item.seller.username }}</div>
+    </div>
+    {% empty %}
+    <div class="mkt-empty" style="grid-column:1/-1;">
+        <div class="mkt-empty-icon" translate="no">&#x1F6D2;</div>
+        <p>No listings in your village yet.<br>Be the first to list something using the mic button above!</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Seed Bank Feed (hidden by default) -->
+<div class="mkt-feed" id="feed-seeds" style="display:none;">
+    {% for item in seed_swaps %}
+    <div class="listing-card">
+        {% if item.seed_guardian %}
+        <div class="seed-guardian-badge" translate="no">&#x1F331; Seed Guardian</div>
+        {% endif %}
+        <div class="listing-cat">Heritage Seeds</div>
+        <div class="listing-name">{{ item.item_name }}</div>
+        <div class="listing-qty">{{ item.quantity_str }}</div>
+        <div class="swap-label" translate="no">&#x1F501; Free Swap</div>
+        <div class="listing-seller">by {{ item.seller.first_name|default:item.seller.username }}</div>
+    </div>
+    {% empty %}
+    <div class="mkt-empty" style="grid-column:1/-1;">
+        <div class="mkt-empty-icon" translate="no">&#x1F33F;</div>
+        <p>No heritage seeds listed yet.<br>Say "I want to swap my <i>local paddy seeds</i>" to add yours!</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    (function () {
+        var CSRF = '{{ csrf_token }}';
+        var pendingData = null;
+        var recognition = null;
+
+        // ── Tab switching ──
+        window.switchTab = function (tab) {
+            document.getElementById('feed-market').style.display = tab === 'market' ? 'grid' : 'none';
+            document.getElementById('feed-seeds').style.display = tab === 'seeds' ? 'grid' : 'none';
+            document.getElementById('tab-market').classList.toggle('active', tab === 'market');
+            document.getElementById('tab-seeds').classList.toggle('active', tab === 'seeds');
+        };
+
+        // ── Voice recognition setup ──
+        var boliBtn = document.getElementById('boli-btn');
+        var boliIcon = document.getElementById('boli-icon');
+        var status = document.getElementById('boli-status');
+
+        function setStatus(msg, show) {
+            status.textContent = msg;
+            status.style.display = show ? 'block' : 'none';
+        }
+
+        function startListening() {
+            var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) {
+                setStatus('Voice not supported in this browser. Please use Chrome.', true);
+                return;
+            }
+            recognition = new SR();
+            recognition.lang = '{{ request.user.userprofile.language|default:"kn" }}-IN';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = function () {
+                boliBtn.classList.add('recording');
+                boliIcon.textContent = '\u23F9\uFE0F'; // stop icon
+                setStatus('\uD83D\uDD34 Listening\u2026 Tap to stop', true);
+            };
+
+            recognition.onresult = function (event) {
+                var transcript = event.results[0][0].transcript;
+                setStatus('\uD83E\uDD16 Sakhi is extracting your listing\u2026', true);
+                extractListing(transcript);
+            };
+
+            recognition.onerror = function (e) {
+                boliBtn.classList.remove('recording');
+                boliIcon.textContent = '\uD83C\uDFA4';
+                setStatus('Could not hear clearly. Please tap and try again.', true);
+            };
+
+            recognition.onend = function () {
+                boliBtn.classList.remove('recording');
+                boliIcon.textContent = '\uD83C\uDFA4';
+            };
+
+            recognition.start();
+        }
+
+        function stopListening() {
+            if (recognition) { try { recognition.stop(); } catch (e) { } }
+        }
+
+        boliBtn.addEventListener('click', function () {
+            if (boliBtn.classList.contains('recording')) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        });
+
+        // ── Extract listing via Gemini API ──
+        function extractListing(transcript) {
+            fetch('{% url "api_voice_list_item" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF
+                },
+                body: JSON.stringify({ transcript: transcript })
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (res) {
+                    if (res.ok) {
+                        pendingData = res.data;
+                        showConfirmation(res.data);
+                    } else {
+                        setStatus('\u26A0\uFE0F Error: ' + (res.error || 'Could not extract data'), true);
+                    }
+                })
+                .catch(function (e) {
+                    setStatus('\u26A0\uFE0F Network error. Please try again.', true);
+                });
+        }
+
+        // ── Show confirmation bottom sheet ──
+        function showConfirmation(d) {
+            document.getElementById('cf-name').textContent = d.item_name || '—';
+            document.getElementById('cf-qty').textContent = d.quantity || '—';
+            document.getElementById('cf-price').textContent = d.is_exchange ? 'Free Swap' : ('\u20B9' + (d.price || '0'));
+            document.getElementById('cf-cat').textContent = d.category || '—';
+            document.getElementById('cf-type').textContent = d.is_exchange ? '\uD83D\uDD01 Seed Swap / Exchange' : '\uD83D\uDCB0 For Sale';
+            document.getElementById('confirm-overlay').classList.add('show');
+            setStatus('', false);
+
+            // Read back aloud using Sakhi voice
+            var readBack = 'Sakhi has extracted: ' + d.item_name + ', ' + d.quantity + ', ' +
+                (d.is_exchange ? 'for free swap' : 'for ' + d.price + ' rupees') + '. Is this correct?';
+            if (typeof speakLocalText === 'function') {
+                speakLocalText(readBack);
+            }
+        }
+
+        document.getElementById('conf-cancel').addEventListener('click', function () {
+            document.getElementById('confirm-overlay').classList.remove('show');
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            pendingData = null;
+        });
+
+        document.getElementById('conf-ok').addEventListener('click', function () {
+            if (!pendingData) return;
+            var btn = document.getElementById('conf-ok');
+            btn.textContent = '\u23F3 Saving\u2026';
+            btn.disabled = true;
+
+            fetch('{% url "api_confirm_listing" %}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+                body: JSON.stringify(pendingData)
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (res) {
+                    document.getElementById('confirm-overlay').classList.remove('show');
+                    if (res.ok) {
+                        setStatus('\u2714 Listed successfully in ' + (res.location || 'your village') + '! Refresh to see your listing.', true);
+                        if (typeof speakLocalText === 'function') {
+                            speakLocalText('Your item has been listed successfully!');
+                        }
+                        setTimeout(function () { window.location.reload(); }, 2500);
+                    } else {
+                        setStatus('\u26A0\uFE0F Save failed: ' + (res.error || 'Unknown error'), true);
+                        btn.textContent = '\u2714 List It!';
+                        btn.disabled = false;
+                    }
+                })
+                .catch(function (e) {
+                    setStatus('\u26A0\uFE0F Network error. Try again.', true);
+                    btn.textContent = '\u2714 List It!';
+                    btn.disabled = false;
+                });
+        });
+    })();
+</script>
+{% endblock %}

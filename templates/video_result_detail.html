@@ -1,0 +1,826 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Crop Guardian &ndash; Analysis Report{% endblock %}
+
+{% block styles %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Outfit', sans-serif;
+        background: #f0f4f0;
+    }
+
+    /* ── WRAP ── */
+    .vr-wrap {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 1.2rem 1rem 3rem;
+    }
+
+    /* ── HERO BANNER ── */
+    .vr-hero {
+        background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #388e3c 100%);
+        border-radius: 18px;
+        padding: 1.4rem 2rem;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 6px 24px rgba(27, 94, 32, .3);
+    }
+
+    .vr-hero h1 {
+        margin: 0;
+        font-size: 1.35rem;
+        font-weight: 800;
+    }
+
+    .vr-hero p {
+        margin: .25rem 0 0;
+        opacity: .85;
+        font-size: .88rem;
+    }
+
+    .vr-hero-meta {
+        display: flex;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+    }
+
+    .vr-meta-pill {
+        background: rgba(255, 255, 255, .18);
+        border-radius: 20px;
+        padding: 4px 14px;
+        font-size: .78rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    /* ── GRID ── */
+    .vr-grid {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 1.1rem;
+        align-items: start;
+    }
+
+    @media(max-width: 860px) {
+        .vr-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ── CARD ── */
+    .vr-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 1.4rem 1.5rem;
+        box-shadow: 0 3px 14px rgba(0, 0, 0, .07);
+        margin-bottom: 1.1rem;
+    }
+
+    .vr-card h3 {
+        font-size: .97rem;
+        font-weight: 800;
+        color: #1b5e20;
+        margin: 0 0 1rem;
+        padding-bottom: .6rem;
+        border-bottom: 2px solid #e8f5e9;
+    }
+
+    /* ── VIDEO ── */
+    .vr-video {
+        width: 100%;
+        border-radius: 14px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+        display: block;
+    }
+
+    /* ── HEALTH DONUT ── */
+    .health-donut-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .5rem;
+        margin-bottom: 1rem;
+    }
+
+    .health-donut {
+        position: relative;
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        font-size: 1.85rem;
+        font-weight: 800;
+    }
+
+    .health-donut::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+    }
+
+    .health-donut .hd-pct {
+        line-height: 1;
+    }
+
+    .health-donut .hd-label {
+        font-size: .65rem;
+        font-weight: 600;
+        letter-spacing: .5px;
+        opacity: .8;
+    }
+
+    .hd-high {
+        background: conic-gradient(#4caf50 0% var(--p, 80%), #e8f5e9 0%);
+        color: #2e7d32;
+    }
+
+    .hd-mid {
+        background: conic-gradient(#ff9800 0% var(--p, 60%), #fff8e1 0%);
+        color: #e65100;
+    }
+
+    .hd-low {
+        background: conic-gradient(#f44336 0% var(--p, 30%), #ffebee 0%);
+        color: #b71c1c;
+    }
+
+    .hd-inner {
+        position: absolute;
+        inset: 16px;
+        border-radius: 50%;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+    }
+
+    /* ── STAT TILES ── */
+    .stat-tiles {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .7rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-tile {
+        background: #f9fdf9;
+        border-radius: 12px;
+        padding: .9rem;
+        border: 1.5px solid #e8f5e9;
+        text-align: center;
+    }
+
+    .stat-tile .st-val {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin: 0 0 .15rem;
+    }
+
+    .stat-tile .st-lbl {
+        font-size: .7rem;
+        color: #888;
+        font-weight: 600;
+        letter-spacing: .3px;
+    }
+
+    .st-green {
+        color: #2e7d32;
+    }
+
+    .st-blue {
+        color: #1565c0;
+    }
+
+    .st-orange {
+        color: #e65100;
+    }
+
+    .st-red {
+        color: #c62828;
+    }
+
+    /* ── HEALTH BADGE ── */
+    .health-badge {
+        display: inline-block;
+        border-radius: 20px;
+        padding: 3px 14px;
+        font-size: .75rem;
+        font-weight: 700;
+        letter-spacing: .3px;
+    }
+
+    .hb-excellent {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border: 1.5px solid #a5d6a7;
+    }
+
+    .hb-good {
+        background: #e3f2fd;
+        color: #1565c0;
+        border: 1.5px solid #90caf9;
+    }
+
+    .hb-caution {
+        background: #fff8e1;
+        color: #e65100;
+        border: 1.5px solid #ffcc02;
+    }
+
+    .hb-critical {
+        background: #ffebee;
+        color: #c62828;
+        border: 1.5px solid #ef9a9a;
+    }
+
+    /* ── ALERTS ── */
+    .alert-item {
+        padding: 1rem 1.2rem;
+        border-radius: 12px;
+        border-left: 5px solid;
+        margin-bottom: .7rem;
+        display: flex;
+        flex-direction: column;
+        gap: .3rem;
+    }
+
+    .alert-item .ai-head {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        font-weight: 700;
+        font-size: .9rem;
+    }
+
+    .alert-item .ai-body {
+        font-size: .84rem;
+        color: #555;
+        line-height: 1.5;
+    }
+
+    .severity-chip {
+        font-size: .62rem;
+        font-weight: 700;
+        border-radius: 10px;
+        padding: 2px 8px;
+        margin-left: auto;
+    }
+
+    .sev-high {
+        background: #c62828;
+        color: #fff;
+    }
+
+    .sev-med {
+        background: #f57c00;
+        color: #fff;
+    }
+
+    .sev-low {
+        background: #2e7d32;
+        color: #fff;
+    }
+
+    .alert-disease {
+        border-color: #d32f2f;
+        background: #fff5f5;
+    }
+
+    .alert-weed {
+        border-color: #ffc107;
+        background: #fffde7;
+    }
+
+    .alert-dry {
+        border-color: #2196f3;
+        background: #e8f4fd;
+    }
+
+    .alert-other {
+        border-color: #795548;
+        background: #fdf3f0;
+    }
+
+    .alert-none {
+        border-color: #4caf50;
+        background: #f1f8f1;
+    }
+
+    /* ── PROBLEM ZONES ── */
+    .zone-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .4rem;
+        margin-top: .5rem;
+    }
+
+    .zone-chip {
+        background: #fff3e0;
+        border: 1.5px solid #ffb74d;
+        border-radius: 20px;
+        padding: 3px 12px;
+        font-size: .73rem;
+        font-weight: 600;
+        color: #e65100;
+    }
+
+    /* ── ACTION PLAN ── */
+    .action-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: .7rem;
+    }
+
+    .action-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: .8rem;
+        background: #f9fdf9;
+        border-radius: 12px;
+        padding: .85rem 1rem;
+        border: 1px solid #e8f5e9;
+        font-size: .87rem;
+        line-height: 1.55;
+        color: #333;
+    }
+
+    .action-num {
+        min-width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1b5e20, #43a047);
+        color: #fff;
+        font-size: .72rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* ── AI SUMMARY ── */
+    .ai-summary-card {
+        background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+        border-radius: 16px;
+        padding: 1.4rem 1.8rem;
+        color: #fff;
+        box-shadow: 0 6px 24px rgba(27, 94, 32, .28);
+        margin-bottom: 1.1rem;
+    }
+
+    .ai-summary-card h3 {
+        font-size: .97rem;
+        font-weight: 800;
+        margin: 0 0 .7rem;
+        opacity: .9;
+        letter-spacing: .3px;
+    }
+
+    .ai-summary-card p {
+        font-size: .9rem;
+        line-height: 1.75;
+        opacity: .95;
+        margin: 0;
+    }
+
+    .ai-tag {
+        display: inline-block;
+        background: rgba(255, 255, 255, .2);
+        border-radius: 20px;
+        padding: 2px 12px;
+        font-size: .7rem;
+        font-weight: 700;
+        margin-bottom: .7rem;
+    }
+
+    /* ── LOADING SCREEN ── */
+    .loading-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 4rem 2rem;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, .1);
+        max-width: 580px;
+        margin: 3rem auto;
+    }
+
+    .spinner-ring {
+        width: 80px;
+        height: 80px;
+        border: 8px solid #e8f5e9;
+        border-top: 8px solid #4caf50;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1.5rem;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .loading-steps {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+        width: 100%;
+        max-width: 380px;
+        text-align: left;
+    }
+
+    .loading-steps li {
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+        font-size: .85rem;
+        color: #666;
+        padding: .4rem .7rem;
+        border-radius: 8px;
+        transition: background .3s;
+    }
+
+    .loading-steps li.active-step {
+        background: #e8f5e9;
+        color: #1b5e20;
+        font-weight: 700;
+    }
+
+    .ls-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #ccc;
+        flex-shrink: 0;
+    }
+
+    .active-step .ls-dot {
+        background: #4caf50;
+        animation: pulse-dot 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.5);
+        }
+    }
+
+    /* ── FAILED ── */
+    .failed-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .08);
+        border-left: 6px solid #f44336;
+        max-width: 640px;
+        margin: 2rem auto;
+    }
+
+    /* ── BACK LINK ── */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        color: #2e7d32;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: .88rem;
+        margin-bottom: 1rem;
+        transition: gap .2s;
+    }
+
+    .back-link:hover {
+        gap: .7rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vr-wrap">
+
+    {% if status == 'PENDING' or status == 'ANALYZING' %}
+
+    <div class="loading-wrap" id="processing-container">
+        <div class="spinner-ring"></div>
+        <h2 style="color:#1b5e20;margin:0 0 .5rem;">&#129302; AI Analysis in Progress</h2>
+        <p style="color:#666;font-size:.9rem;">Sakhi AI is scanning your crop video. This usually takes 30&ndash;60
+            seconds.</p>
+        <ul class="loading-steps" id="loading-steps">
+            <li><span class="ls-dot"></span>Starting AI video stream...</li>
+            <li><span class="ls-dot"></span>Identifying growth patterns &amp; density...</li>
+            <li><span class="ls-dot"></span>Scanning for weed &amp; dry patches...</li>
+            <li><span class="ls-dot"></span>Comparing with baseline health...</li>
+            <li><span class="ls-dot"></span>Running disease detection...</li>
+            <li><span class="ls-dot"></span>Generating action plan &amp; report...</li>
+        </ul>
+    </div>
+
+    {% elif status == 'FAILED' %}
+
+    <div class="failed-card">
+        <h2 style="color:#c62828;margin-top:0;">&#128680; Analysis Failed</h2>
+        <p style="color:#555;">{{ details.error|default:"An unknown error occurred. Check video format (MP4/MOV) and
+            size (max 150 MB) and try again." }}</p>
+        <a href="{% url 'video_analysis_upload' %}"
+            style="display:inline-block;margin-top:1rem;padding:10px 22px;background:#2e7d32;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">
+            &#8592; Try New Upload
+        </a>
+    </div>
+
+    {% elif status == 'COMPLETED' %}
+
+    <a href="{% url 'analyze_field_dashboard' %}" class="back-link">&#8592; Back to Field Dashboard</a>
+
+    <!-- HERO BANNER -->
+    <div class="vr-hero">
+        <div>
+            <h1>&#129302; AI Crop Guardian Report</h1>
+            <p>Video ID #{{ video_record.id }} &nbsp;&bull;&nbsp; {{ video_record.date|date:"F d, Y" }}</p>
+        </div>
+        <div class="vr-hero-meta">
+            {% if details.crop_health %}
+            {% if details.crop_health >= 75 %}
+            <span class="vr-meta-pill">&#129395; Healthy Crop</span>
+            {% elif details.crop_health >= 50 %}
+            <span class="vr-meta-pill">&#9888;&#65039; Needs Attention</span>
+            {% else %}
+            <span class="vr-meta-pill">&#128680; Critical Issue</span>
+            {% endif %}
+            {% endif %}
+            <span class="vr-meta-pill">&#128247; Field Video</span>
+            <span class="vr-meta-pill">&#9200; {{ video_record.date|date:"g:i A" }}</span>
+        </div>
+    </div>
+
+    <!-- AI SUMMARY -->
+    {% if details.summary or details.ai_summary %}
+    <div class="ai-summary-card">
+        <span class="ai-tag">&#129302; Sakhi AI Insight</span>
+        <h3>15-Day Farm Advisory Summary</h3>
+        <p>{{ details.summary|default:details.ai_summary|default:"AI analysis complete. Review the detailed findings
+            below." }}</p>
+    </div>
+    {% endif %}
+
+    <!-- MAIN GRID -->
+    <div class="vr-grid">
+
+        <!-- LEFT: VIDEO + META -->
+        <div>
+            <div class="vr-card">
+                <h3>&#127909; Field Video</h3>
+                <video class="vr-video" src="{{ video_record.video_file.url }}" controls muted loop playsinline></video>
+                <p style="font-size:.75rem;color:#999;margin:.6rem 0 0;text-align:center;">Tap play to review your crop
+                    footage</p>
+            </div>
+
+            <!-- HEALTH SCORE -->
+            <div class="vr-card">
+                <h3>&#128200; Crop Health Score</h3>
+                <div class="health-donut-wrap">
+                    {% if details.crop_health %}
+                    {% if details.crop_health >= 75 %}
+                    <div class="health-donut hd-high" style="--p:{{ details.crop_health }}%;">
+                        <div class="hd-inner">
+                            <span class="hd-pct">{{ details.crop_health }}</span>
+                            <span class="hd-label">/ 100</span>
+                        </div>
+                    </div>
+                    <span class="health-badge hb-excellent">&#9989; Excellent</span>
+                    {% elif details.crop_health >= 50 %}
+                    <div class="health-donut hd-mid" style="--p:{{ details.crop_health }}%;">
+                        <div class="hd-inner">
+                            <span class="hd-pct">{{ details.crop_health }}</span>
+                            <span class="hd-label">/ 100</span>
+                        </div>
+                    </div>
+                    <span class="health-badge hb-caution">&#9888;&#65039; Caution</span>
+                    {% else %}
+                    <div class="health-donut hd-low" style="--p:{{ details.crop_health }}%;">
+                        <div class="hd-inner">
+                            <span class="hd-pct">{{ details.crop_health }}</span>
+                            <span class="hd-label">/ 100</span>
+                        </div>
+                    </div>
+                    <span class="health-badge hb-critical">&#128680; Critical</span>
+                    {% endif %}
+                    {% else %}
+                    <div class="health-donut hd-mid" style="--p:50%;">
+                        <div class="hd-inner"><span class="hd-pct">N/A</span></div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- STAT TILES -->
+                <div class="stat-tiles">
+                    <div class="stat-tile">
+                        <div class="st-val st-green">
+                            {% if details.growth_percentage %}+{{ details.growth_percentage }}%{% else %}N/A{% endif %}
+                        </div>
+                        <div class="st-lbl">Growth (Last Week)</div>
+                    </div>
+                    <div class="stat-tile">
+                        <div class="st-val st-blue">{{ details.uniformity|default:"N/A" }}</div>
+                        <div class="st-lbl">Plant Uniformity</div>
+                    </div>
+                    {% if details.canopy_cover %}
+                    <div class="stat-tile">
+                        <div class="st-val st-orange">{{ details.canopy_cover }}%</div>
+                        <div class="st-lbl">Canopy Cover</div>
+                    </div>
+                    {% endif %}
+                    {% if details.stress_index %}
+                    <div class="stat-tile">
+                        <div class="st-val st-red">{{ details.stress_index }}</div>
+                        <div class="st-lbl">Stress Index</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: ALERTS + ACTION PLAN -->
+        <div>
+
+            <!-- ALERTS -->
+            <div class="vr-card">
+                <h3>&#9888;&#65039; Alerts &amp; Problem Zones</h3>
+
+                {% if details.alerts %}
+                {% for alert in details.alerts %}
+                {% with alert_type=alert.type|default:"Other"|lower %}
+                <div
+                    class="alert-item {% if 'disease' in alert_type %}alert-disease{% elif 'weed' in alert_type %}alert-weed{% elif 'dry' in alert_type or 'drought' in alert_type %}alert-dry{% else %}alert-other{% endif %}">
+                    <div class="ai-head">
+                        {% if 'disease' in alert_type %}&#129754;{% elif 'weed' in alert_type %}&#127807;{% elif 'dry'
+                        in alert_type %}&#128167;{% else %}&#128204;{% endif %}
+                        {{ alert.type|default:"Issue" }}
+                        {% with sev=alert.severity|default:"Low"|lower %}
+                        <span
+                            class="severity-chip {% if 'high' in sev or 'critical' in sev %}sev-high{% elif 'medium' in sev or 'moderate' in sev %}sev-med{% else %}sev-low{% endif %}">
+                            {{ alert.severity|default:"Low" }}
+                        </span>
+                        {% endwith %}
+                    </div>
+                    <div class="ai-body">{{ alert.summary|default:"Details unavailable." }}</div>
+                </div>
+                {% endwith %}
+                {% endfor %}
+
+                {% if details.problem_zones %}
+                <div style="margin-top:.8rem;">
+                    <div style="font-size:.78rem;color:#888;font-weight:600;margin-bottom:.4rem;">&#128205; PROBLEM
+                        ZONES DETECTED</div>
+                    <div class="zone-chips">
+                        {% for zone in details.problem_zones %}
+                        <span class="zone-chip">{{ zone }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% else %}
+                <div class="alert-item alert-none">
+                    <div class="ai-head">&#129395; Field Looking Healthy</div>
+                    <div class="ai-body">No critical disease, weed, or dryness alerts detected in this week's video.
+                        Keep monitoring weekly.</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ACTION PLAN -->
+            <div class="vr-card">
+                <h3>&#128295; AI Action Plan</h3>
+                {% if details.action_plan %}
+                <ul class="action-list">
+                    {% for action in details.action_plan %}
+                    <li>
+                        <span class="action-num">{{ forloop.counter }}</span>
+                        {{ action }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <ul class="action-list">
+                    <li><span class="action-num">&#10003;</span>No immediate action required. Continue weekly video
+                        monitoring for early detection.</li>
+                </ul>
+                {% endif %}
+            </div>
+
+            <!-- SOIL & IRRIGATION -->
+            {% if details.soil_observation or details.irrigation_note %}
+            <div class="vr-card">
+                <h3>&#127807; Soil &amp; Irrigation Observations</h3>
+                {% if details.soil_observation %}
+                <p style="font-size:.88rem;color:#444;line-height:1.6;margin:0 0 .7rem;">
+                    <strong>Soil:</strong> {{ details.soil_observation }}
+                </p>
+                {% endif %}
+                {% if details.irrigation_note %}
+                <p style="font-size:.88rem;color:#444;line-height:1.6;margin:0;">
+                    <strong>Irrigation:</strong> {{ details.irrigation_note }}
+                </p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- NEXT CHECK -->
+            <div class="vr-card" style="display:flex;align-items:center;gap:1rem;">
+                <div style="font-size:2rem;flex-shrink:0;">&#128197;</div>
+                <div>
+                    <div style="font-weight:700;color:#1b5e20;font-size:.95rem;">Next Scheduled Video Check</div>
+                    <div style="font-size:.83rem;color:#666;margin-top:.25rem;">
+                        Repeat video analysis <strong>in 7 days</strong> for trend tracking. Early detection every week
+                        prevents major crop loss.
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /right -->
+    </div><!-- /grid -->
+
+    {% endif %}
+    {% endblock %}
+
+    {% block scripts %}
+    <script>
+        var videoId = {{ video_record.id }};
+
+        function getCookie(name) {
+            var v = document.cookie.split('; ').find(function (r) { return r.startsWith(name + '='); });
+            return v ? decodeURIComponent(v.split('=')[1]) : '';
+        }
+
+        var csrfToken = getCookie('csrftoken');
+        var processingContainer = document.getElementById('processing-container');
+        var isProcessing = processingContainer !== null;
+        var loadingSteps = document.querySelectorAll('#loading-steps li');
+        var stepIndex = 0;
+
+        function highlightStep(i) {
+            loadingSteps.forEach(function (li, idx) {
+                li.classList.toggle('active-step', idx === i);
+            });
+        }
+
+        function checkStatus() {
+            fetch('/api/process-video/' + videoId + '/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify({})
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.status === 'COMPLETED' || data.status === 'FAILED') {
+                        window.location.reload();
+                    }
+                })
+                .catch(function (err) {
+                    console.error('Poll error:', err);
+                });
+        }
+
+        if (isProcessing) {
+            highlightStep(0);
+            var ticker = setInterval(function () {
+                stepIndex = (stepIndex + 1) % loadingSteps.length;
+                highlightStep(stepIndex);
+                checkStatus();
+            }, 5000);
+            checkStatus();
+        }
+    </script>
+    {% endblock %}

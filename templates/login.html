@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – Krishi Sakhi</title>
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a3d0a 0%, #1b6e20 50%, #2e7d32 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      padding: 1rem;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .brand-icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: .5rem;
+    }
+
+    .brand h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #1b6e20;
+    }
+
+    .brand p {
+      color: #777;
+      font-size: 0.9rem;
+      margin-top: .3rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: .5rem;
+      font-size: 0.92rem;
+    }
+
+    input[type="tel"],
+    input[type="password"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-family: 'Outfit', sans-serif;
+      outline: none;
+      transition: border-color .3s, box-shadow .3s;
+      background: #fafafa;
+    }
+
+    input[type="tel"]:focus,
+    input[type="password"]:focus {
+      border-color: #2e7d32;
+      box-shadow: 0 0 0 4px rgba(46, 125, 50, .12);
+      background: #fff;
+    }
+
+    .pin-hints {
+      text-align: center;
+      letter-spacing: 8px;
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #1b6e20, #4caf50);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      margin-top: .5rem;
+    }
+
+    .btn-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(46, 125, 50, .35);
+    }
+
+    .btn-demo {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #ff8f00, #ffca28);
+      color: #333;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      margin-top: .75rem;
+    }
+
+    .btn-demo:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255, 152, 0, .35);
+    }
+
+    .demo-label {
+      text-align: center;
+      color: #888;
+      font-size: 0.82rem;
+      margin-top: .4rem;
+    }
+
+    .error-box {
+      background: #fff3f3;
+      border: 1px solid #ef9a9a;
+      color: #c62828;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .divider {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.85rem;
+      margin: 1rem 0;
+      position: relative;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 38%;
+      height: 1px;
+      background: #e0e0e0;
+    }
+
+    .divider::before {
+      left: 0;
+    }
+
+    .divider::after {
+      right: 0;
+    }
+
+    .footer-link {
+      text-align: center;
+      margin-top: 1.25rem;
+      font-size: .9rem;
+      color: #777;
+    }
+
+    .footer-link a {
+      color: #1b6e20;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .voice-hint {
+      background: #e8f5e9;
+      border-left: 3px solid #4CAF50;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: .82rem;
+      color: #2e7d32;
+      margin-bottom: 1.25rem;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .voice-hint span {
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-card">
+    <div class="brand">
+      <span class="brand-icon">🌾</span>
+      <h1>Krishi Sakhi</h1>
+      <p id="voice-subtitle">Your AI Farming Companion</p>
+    </div>
+
+    <div class="voice-hint" id="voice-guide-box">
+      <span>🔊</span>
+      <span id="voice-guide-text">Tap a field to hear what to enter.</span>
+    </div>
+
+    {% if error %}
+    <div class="error-box">{{ error }}</div>
+    {% endif %}
+
+    <form id="loginForm" method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>📱 Phone Number</label>
+        <input type="tel" id="username" name="username" inputmode="numeric" pattern="[0-9]*"
+          placeholder="Enter 10-digit phone number" maxlength="10" required onfocus="speakHint('phone')" />
+      </div>
+      <div class="form-group">
+        <label>🔒 PIN</label>
+        <input type="password" id="password" name="password" inputmode="numeric" pattern="[0-9]*" placeholder="● ● ● ●"
+          maxlength="4" required class="pin-hints" onfocus="speakHint('pin')" />
+      </div>
+      <button type="submit" class="btn-main">Login ✅</button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <!-- Demo Login Button -->
+    <button class="btn-demo" onclick="demoLogin()">
+      🎯 Demo Login (Click to Try!)
+    </button>
+    <p class="demo-label">Loads a demo farmer account instantly – no signup needed</p>
+
+    <div class="footer-link">
+      Don't have an account? <a href="{% url 'signup' %}">Sign up here</a>
+    </div>
+  </div>
+
+  <div id="google_translate_element" style="display:none;"></div>
+  <script>
+    // ── Voice guide per field ──
+    const voiceHints = {
+      phone: {
+        en: "Please enter your 10-digit mobile phone number.",
+        hi: "कृपया अपना 10 अंकों का मोबाइल नंबर दर्ज करें।",
+        kn: "ದಯವಿಟ್ಟು ನಿಮ್ಮ 10 ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ.",
+        ta: "உங்கள் 10 இலக்க மொபைல் எண்ணை உள்ளிடுக.",
+        te: "దయచేసి మీ 10 అంకెల మొబైల్ నంబర్ నమోదు చేయండి.",
+      },
+      pin: {
+        en: "Now enter your secret 4-digit PIN.",
+        hi: "अब अपना गुप्त 4 अंकों का पिन दर्ज करें।",
+        kn: "ಈಗ ನಿಮ್ಮ ರಹಸ್ಯ 4 ಅಂಕಿಯ ಪಿನ್ ನಮೂದಿಸಿ.",
+        ta: "இப்போது உங்கள் ரகசிய 4 இலக்க PIN ஐ உள்ளிடுக.",
+        te: "ఇప్పుడు మీ రహస్య 4 అంకెల PIN నమోదు చేయండి.",
+      }
+    };
+
+    function detectLang() {
+      return localStorage.getItem('sakhiManualLang') || localStorage.getItem('sakhiAutoLang') || 'hi';
+    }
+
+    function speakHint(field) {
+      const lang = detectLang();
+      const bcp = { en: 'en-US', hi: 'hi-IN', kn: 'kn-IN', ta: 'ta-IN', te: 'te-IN', mr: 'mr-IN' }[lang] || 'hi-IN';
+      const hints = voiceHints[field];
+      const text = hints[lang] || hints['en'];
+      document.getElementById('voice-guide-text').textContent = text;
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = bcp; u.rate = .95; u.pitch = 1;
+        speechSynthesis.speak(u);
+      }
+    }
+
+    function demoLogin() {
+      document.getElementById('username').value = '9999999999';
+      document.getElementById('password').value = '1234';
+      document.getElementById('loginForm').submit();
+    }
+
+    // Auto-play welcome on load
+    window.addEventListener('load', () => {
+      const lang = detectLang();
+      const bcp = { en: 'en-US', hi: 'hi-IN', kn: 'kn-IN', ta: 'ta-IN', te: 'te-IN', mr: 'mr-IN' }[lang] || 'hi-IN';
+      const welcomes = {
+        hi: "नमस्ते! कृषि सखी में आपका स्वागत है। अपना फोन नंबर और पिन डालें।",
+        kn: "ನಮಸ್ಕಾರ! ಕೃಷಿ ಸಖಿಗೆ ಸ್ವಾಗತ. ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆ ಮತ್ತು ಪಿನ್ ನಮೂದಿಸಿ.",
+        ta: "வணக்கம்! கிருஷி சகிக்கு வரவேற்கிறோம். உங்கள் எண் மற்றும் PIN ஐ உள்ளிடுக.",
+        te: "నమస్కారం! కృషి సఖికి స్వాగతం. మీ ఫోన్ నంబర్ మరియు PIN నమోదు చేయండి.",
+        en: "Welcome to Krishi Sakhi. Please enter your phone number and PIN.",
+      };
+      const text = welcomes[lang] || welcomes['hi'];
+      document.getElementById('voice-guide-text').textContent = text;
+      setTimeout(() => {
+        if ('speechSynthesis' in window) {
+          speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = bcp; u.rate = .9;
+          speechSynthesis.speak(u);
+        }
+      }, 600);
+
+      // Auto-detect language
+      const savedLang = localStorage.getItem('sakhiAutoLang');
+      if (!savedLang) {
+        fetch('/api/detect-language/')
+          .then(r => r.json())
+          .then(d => {
+            if (d.lang) {
+              localStorage.setItem('sakhiAutoLang', d.lang);
+              if (d.lang !== 'en') switchLanguage(d.lang);
+            }
+          }).catch(() => { });
+      }
+    });
+
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en', includedLanguages: 'en,hi,ta,te,kn',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false
+      }, 'google_translate_element');
+    }
+    function switchLanguage(langCode) {
+      var v = "/en/" + langCode;
+      document.cookie = "googtrans=" + v + "; path=/";
+      document.cookie = "googtrans=" + v + "; path=/; domain=" + window.location.hostname;
+      window.location.reload();
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+
+</html>

@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Personalize My Farm{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-container h2 {
+        margin-top: 0;
+        color: #2c5e2e;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-sizing: border-box;
+        font-size: 1rem;
+    }
+
+    .btn-submit {
+        display: block;
+        width: 100%;
+        padding: 0.85rem;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+</style>
+
+<div class="form-container">
+    <h2>Personalize Your Farm</h2>
+    <p>Tell us about your farm so Sakhi can provide tailored advice for soil, weather, and market conditions.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="soil-type">Your Primary Soil Type</label>
+            <select id="soil-type" name="soil-type">
+                <option value="Alluvial Soil" {% if profile.soil_type=="Alluvial Soil" %}selected{% endif %}>Alluvial
+                    Soil</option>
+                <option value="Black (Regur) Soil" {% if profile.soil_type=="Black (Regur) Soil" %}selected{% endif %}>
+                    Black (Regur) Soil</option>
+                <option value="Red and Yellow Soil" {% if profile.soil_type=="Red and Yellow Soil" %}selected{% endif
+                    %}>Red and Yellow Soil</option>
+                <option value="Laterite Soil" {% if profile.soil_type=="Laterite Soil" %}selected{% endif %}>Laterite
+                    Soil</option>
+                <option value="Arid (Desert) Soil" {% if profile.soil_type=="Arid (Desert) Soil" %}selected{% endif %}>
+                    Arid (Desert) Soil</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="location">Your Village / Location</label>
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="location" name="location" value="{{ profile.location|default:'' }}"
+                    style="flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;"
+                    placeholder="e.g. Hubli, Karnataka">
+                <button type="button" id="btn-fetch-loc"
+                    style="background: #1b5e20; color: #fff; border: none; border-radius: 8px; padding: 0 1rem; cursor: pointer; font-weight: 600;">
+                    &#x1F4CD; Auto-Detect
+                </button>
+            </div>
+            <p id="loc-status" style="font-size: 0.8rem; color: #666; margin-top: 0.3rem; display: none;"></p>
+        </div>
+
+        <div class="form-group">
+            <label for="main-crops">What are you currently growing? (comma separated)</label>
+            <textarea id="main-crops" name="main-crops"
+                placeholder="e.g., Rice, Cotton, Tomatoes...">{{ profile.main_crops }}</textarea>
+        </div>
+
+        <p style="font-size: 0.9rem; color: #555;">
+            This information will be used to personalize all AI recommendations and market demand alerts.
+        </p>
+        <button type="submit" class="btn-submit">Save Preferences</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('btn-fetch-loc').addEventListener('click', function () {
+        const btn = this;
+        const status = document.getElementById('loc-status');
+        const locInput = document.getElementById('location');
+
+        if (!navigator.geolocation) {
+            status.textContent = "Geolocation is not supported by your browser.";
+            status.style.display = "block";
+            status.style.color = "#d32f2f";
+            return;
+        }
+
+        btn.innerHTML = "&#x23F3; Detecting...";
+        btn.disabled = true;
+        status.style.display = "none";
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                try {
+                    // Reverse geocoding using OpenStreetMap Nominatim
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`);
+                    const data = await response.json();
+
+                    if (data && data.address) {
+                        const addr = data.address;
+                        // Prioritize village/town/city, fallback to county/state
+                        const localArea = addr.village || addr.town || addr.city || addr.suburb || addr.county || "Unknown Location";
+                        const state = addr.state || "";
+
+                        locInput.value = state ? `${localArea}, ${state}` : localArea;
+
+                        status.textContent = "Location detected successfully!";
+                        status.style.color = "#2e7d32";
+                        status.style.display = "block";
+                    } else {
+                        throw new Error("No address data");
+                    }
+                } catch (err) {
+                    status.textContent = "Could not detect location name. Please enter manually.";
+                    status.style.color = "#e65100";
+                    status.style.display = "block";
+                } finally {
+                    btn.innerHTML = "&#x1F4CD; Auto-Detect";
+                    btn.disabled = false;
+                }
+            },
+            (error) => {
+                let msg = "Could not get location. ";
+                if (error.code === error.PERMISSION_DENIED) msg += "Permission denied.";
+
+                status.textContent = msg + " Please enter manually.";
+                status.style.color = "#d32f2f";
+                status.style.display = "block";
+                btn.innerHTML = "&#x1F4CD; Auto-Detect";
+                btn.disabled = false;
+            },
+            { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+        );
+    });
+</script>
+{% endblock %}

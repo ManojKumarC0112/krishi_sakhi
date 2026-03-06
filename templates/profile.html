@@ -1,0 +1,591 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile – Krishi Sakhi{% endblock %}
+
+{% block styles %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Outfit', sans-serif;
+        background: #f1f8f1;
+    }
+
+    /* ── HERO BANNER ── */
+    .prof-hero {
+        background: linear-gradient(135deg, #1b5e20, #2e7d32, #388e3c);
+        padding: 2.5rem 2rem 4rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .prof-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .prof-avatar-ring {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #a5d6a7, #69f0ae);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2.6rem;
+        font-weight: 800;
+        color: #1b5e20;
+        box-shadow: 0 0 0 4px rgba(255, 255, 255, .3), 0 0 0 8px rgba(255, 255, 255, .1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .prof-hero h1 {
+        color: #fff;
+        font-size: 1.5rem;
+        margin: 0 0 .25rem;
+        font-weight: 800;
+        position: relative;
+        z-index: 1;
+    }
+
+    .prof-hero .sub {
+        color: rgba(255, 255, 255, .75);
+        font-size: .88rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .prof-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, .2);
+        color: #fff;
+        border-radius: 20px;
+        padding: 3px 14px;
+        font-size: .78rem;
+        margin-top: .5rem;
+        border: 1px solid rgba(255, 255, 255, .3);
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ── CARDS CONTAINER ── */
+    .prof-wrap {
+        max-width: 960px;
+        margin: -2.5rem auto 2rem;
+        padding: 0 1rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .prof-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 1.2rem;
+    }
+
+    @media(max-width: 700px) {
+        .prof-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ── SHARED CARD ── */
+    .p-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, .07);
+        overflow: hidden;
+        margin-bottom: 1.2rem;
+    }
+
+    .p-card-head {
+        padding: .9rem 1.2rem;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        font-size: .88rem;
+        font-weight: 700;
+        color: #1b5e20;
+    }
+
+    .p-card-body {
+        padding: 1.2rem;
+    }
+
+    /* ── STAT TILES ── */
+    .stat-tiles {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .8rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .stat-tile {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 3px 14px rgba(0, 0, 0, .07);
+        border-top: 3px solid #4caf50;
+    }
+
+    .stat-tile .st-val {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1b5e20;
+        line-height: 1;
+    }
+
+    .stat-tile .st-lbl {
+        font-size: .75rem;
+        color: #888;
+        margin-top: .25rem;
+        font-weight: 600;
+    }
+
+    /* ── FARM INFO ── */
+    .farm-row {
+        display: flex;
+        align-items: flex-start;
+        gap: .7rem;
+        padding: .65rem 0;
+        border-bottom: 1px solid #f5f5f5;
+        font-size: .88rem;
+    }
+
+    .farm-row:last-child {
+        border-bottom: none;
+    }
+
+    .farm-icon {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        background: #e8f5e9;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .farm-row .lbl {
+        font-size: .72rem;
+        color: #aaa;
+        font-weight: 600;
+        margin-bottom: .1rem;
+    }
+
+    .farm-row .val {
+        color: #333;
+        font-weight: 600;
+    }
+
+    /* ── CROP CHIPS ── */
+    .crop-chip {
+        display: inline-block;
+        background: #e8f5e9;
+        color: #1b5e20;
+        border-radius: 20px;
+        padding: 3px 12px;
+        margin: 3px 2px;
+        font-size: .78rem;
+        font-weight: 600;
+        border: 1px solid #c8e6c9;
+    }
+
+    /* ── RECENT HISTORY ── */
+    .hist-item {
+        display: flex;
+        align-items: center;
+        gap: .8rem;
+        padding: .6rem 0;
+        border-bottom: 1px solid #f5f5f5;
+        font-size: .85rem;
+    }
+
+    .hist-item:last-child {
+        border-bottom: none;
+    }
+
+    .hist-icon {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 10px;
+        background: #f1f8e9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .hist-crop {
+        font-weight: 700;
+        color: #333;
+    }
+
+    .hist-disease {
+        font-size: .78rem;
+        color: #888;
+        margin-top: .1rem;
+    }
+
+    .hist-date {
+        font-size: .7rem;
+        color: #bbb;
+        margin-left: auto;
+        white-space: nowrap;
+    }
+
+    .sev-tag {
+        font-size: .68rem;
+        padding: 1px 8px;
+        border-radius: 10px;
+        font-weight: 700;
+        display: inline-block;
+        margin-top: .15rem;
+    }
+
+    .sev-high {
+        background: #fce4e4;
+        color: #c62828;
+    }
+
+    .sev-med {
+        background: #fff3e0;
+        color: #e65100;
+    }
+
+    .sev-low {
+        background: #e8f5e9;
+        color: #1b5e20;
+    }
+
+    /* ── REPORT CARD ── */
+    .report-card-inner {
+        background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
+        border-radius: 16px;
+        border: 2px solid #a7d3a6;
+        padding: 1.5rem;
+    }
+
+    .report-card-inner h3 {
+        color: #1b5e20;
+        margin: 0 0 .8rem;
+        font-size: 1rem;
+    }
+
+    .report-section h4 {
+        font-size: .85rem;
+        color: #2e7d32;
+        margin: .8rem 0 .3rem;
+    }
+
+    .report-section p {
+        font-size: .88rem;
+        color: #444;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+        display: inline-block;
+        background: linear-gradient(135deg, #1b5e20, #43a047);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 22px;
+        font-weight: 700;
+        font-size: .9rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform .2s;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        display: inline-block;
+        background: #fff;
+        color: #2e7d32;
+        border: 2px solid #a5d6a7;
+        border-radius: 10px;
+        padding: 9px 20px;
+        font-weight: 700;
+        font-size: .9rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background .2s;
+        margin-left: .6rem;
+    }
+
+    .btn-secondary:hover {
+        background: #f1f8e9;
+    }
+
+    .report-loader-inline {
+        display: none;
+        gap: .6rem;
+        align-items: center;
+        padding: .5rem 0;
+    }
+
+    .loader-spinner {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 3px solid #c8e6c9;
+        border-top-color: #1b5e20;
+        animation: spin .8s linear infinite;
+        flex-shrink: 0;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<!-- HERO -->
+<div class="prof-hero">
+    <div class="prof-avatar-ring">
+        {{ user.username|first|upper|default:'K' }}
+    </div>
+    <h1>{{ user.first_name|default:user.username }}</h1>
+    <div class="sub">@{{ user.username }}</div>
+    <div class="prof-badge">🌾 Krishi Sakhi Farmer · Member since {{ join_date|date:"F Y" }}</div>
+</div>
+
+<div class="prof-wrap">
+
+    <!-- STAT TILES ROW -->
+    <div class="stat-tiles">
+        <div class="stat-tile">
+            <div class="st-val">{{ predictions_count }}</div>
+            <div class="st-lbl">🔬 Crop Scans</div>
+        </div>
+        <div class="stat-tile">
+            <div class="st-val">{{ video_count }}</div>
+            <div class="st-lbl">🎥 Field Videos</div>
+        </div>
+        <div class="stat-tile">
+            <div class="st-val">{{ days_active }}</div>
+            <div class="st-lbl">📅 Days Active</div>
+        </div>
+        <div class="stat-tile" style="border-top-color:#ff9800;">
+            <div class="st-val" style="color:#e65100;">
+                {% if profile and profile.main_crops %}{{ crops_list|length }}{% else %}0{% endif %}
+            </div>
+            <div class="st-lbl">🌱 Crops Tracked</div>
+        </div>
+    </div>
+
+    <div class="prof-grid">
+
+        <!-- LEFT COLUMN -->
+        <div>
+
+            <!-- FARM DETAILS -->
+            <div class="p-card">
+                <div class="p-card-head">🚜 My Farm Details</div>
+                <div class="p-card-body">
+                    <div class="farm-row">
+                        <div class="farm-icon">📍</div>
+                        <div>
+                            <div class="lbl">Location</div>
+                            <div class="val">{{ profile.location|default:"Not set" }}</div>
+                        </div>
+                    </div>
+                    <div class="farm-row">
+                        <div class="farm-icon">🌱</div>
+                        <div>
+                            <div class="lbl">My Crops</div>
+                            <div class="val">
+                                {% if crops_list %}
+                                {% for crop in crops_list %}<span class="crop-chip">{{ crop }}</span>{% endfor %}
+                                {% else %}
+                                <span style="color:#aaa;font-size:.85rem;">Not set</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="farm-row">
+                        <div class="farm-icon">🪨</div>
+                        <div>
+                            <div class="lbl">Soil Type</div>
+                            <div class="val">{{ profile.soil_type|default:"Not set" }}</div>
+                        </div>
+                    </div>
+                    <div class="farm-row">
+                        <div class="farm-icon">🌐</div>
+                        <div>
+                            <div class="lbl">Language</div>
+                            <div class="val">
+                                {% if profile.language == 'hi' %}Hindi
+                                {% elif profile.language == 'kn' %}Kannada
+                                {% elif profile.language == 'ta' %}Tamil
+                                {% elif profile.language == 'te' %}Telugu
+                                {% elif profile.language == 'mr' %}Marathi
+                                {% else %}English{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="farm-row">
+                        <div class="farm-icon">📧</div>
+                        <div>
+                            <div class="lbl">Email</div>
+                            <div class="val" style="word-break:break-all;">{{ user.email|default:"Not set" }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    style="padding: .8rem 1.2rem; border-top: 1px solid #f0f0f0; display:flex; gap:.6rem; flex-wrap:wrap;">
+                    <a href="{% url 'personalize' %}" class="btn-primary" style="font-size:.82rem;padding:8px 16px;">✏️
+                        Edit Farm</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div>
+
+            <!-- RECENT ANALYSIS -->
+            {% if recent_predictions %}
+            <div class="p-card">
+                <div class="p-card-head">🔬 Recent Crop Scans</div>
+                <div class="p-card-body" style="padding-top:.4rem;padding-bottom:.4rem;">
+                    {% for p in recent_predictions %}
+                    <div class="hist-item">
+                        <div class="hist-icon">
+                            {% if p.image %}
+                            <img src="{{ p.image.url }}"
+                                style="width:36px;height:36px;object-fit:cover;border-radius:8px;"
+                                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                            {% endif %}
+                            <span
+                                style="display:none;width:36px;height:36px;align-items:center;justify-content:center;font-size:1.1rem;">&#x1F33F;</span>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="hist-crop">{{ p.crop_type|default:"Unknown" }}</div>
+                            <div class="hist-disease">{{ p.disease|default:"Analysis pending" }}</div>
+                            <span
+                                class="sev-tag {% if p.severity == 'High' %}sev-high{% elif p.severity == 'Medium' or 'Medium' in p.severity %}sev-med{% else %}sev-low{% endif %}">{{
+                                p.severity }}</span>
+                        </div>
+                        <div>
+                            <div class="hist-date">{{ p.date|date:"d M" }}</div>
+                            <a href="{% url 'result_detail' p.id %}"
+                                style="font-size:.72rem;color:#1b5e20;font-weight:600;display:block;text-align:right;margin-top:.2rem;">View
+                                →</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="padding:.6rem 1.2rem;border-top:1px solid #f0f0f0;">
+                    <a href="{% url 'history' %}"
+                        style="font-size:.82rem;color:#1b5e20;font-weight:700;text-decoration:none;">View full history
+                        →</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- AI REPORT -->
+            <div class="p-card">
+                <div class="p-card-head">🤖 Personalized AI Report</div>
+                <div class="p-card-body">
+                    <div class="report-card-inner">
+                        <h3>Get your farm's AI insights</h3>
+                        <p style="font-size:.85rem;color:#555;margin-bottom:1rem;">Based on your crops, soil, and
+                            location – get market opportunities, pest alerts, and soil health advice.</p>
+
+                        <div id="report-prompt">
+                            <button class="btn-primary" id="generate-report-btn">✨ Generate My Report</button>
+                        </div>
+
+                        <div class="report-loader-inline" id="report-loader">
+                            <div class="loader-spinner"></div>
+                            <p style="color:#555;font-size:.88rem;margin:0;">Analyzing your farm data…</p>
+                        </div>
+
+                        <div id="report-content" style="display:none;" class="report-section">
+                            <h4>💡 Market Opportunity</h4>
+                            <p id="report-market"></p>
+                            <h4>⚠️ Pest &amp; Disease Alert</h4>
+                            <p id="report-pest"></p>
+                            <h4>🌱 Soil Health</h4>
+                            <p id="report-soil"></p>
+                            <div style="margin-top:1rem;">
+                                <button class="btn-primary" id="generate-report-btn-2"
+                                    style="font-size:.82rem;padding:8px 16px;">🔄 Refresh Report</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function generateReport(e) {
+        const promptDiv = document.getElementById('report-prompt');
+        const loaderDiv = document.getElementById('report-loader');
+        const contentDiv = document.getElementById('report-content');
+        const marketField = document.getElementById('report-market');
+        const pestField = document.getElementById('report-pest');
+        const soilField = document.getElementById('report-soil');
+
+        promptDiv.style.display = 'none';
+        loaderDiv.style.display = 'flex';
+        contentDiv.style.display = 'none';
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch('{% url "api_generate_report" %}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+        })
+            .then(r => r.ok ? r.json() : r.json().then(e => { throw new Error(e.error || r.statusText); }))
+            .then(data => {
+                loaderDiv.style.display = 'none';
+                if (data.error) throw new Error(data.error);
+                marketField.textContent = data.market_opportunity || 'No data available.';
+                pestField.textContent = data.pest_alert || 'No alerts.';
+                soilField.textContent = data.soil_health || 'No data.';
+                contentDiv.style.display = 'block';
+            })
+            .catch(err => {
+                loaderDiv.style.display = 'none';
+                contentDiv.style.display = 'block';
+                marketField.innerHTML = `<span style="color:red;">Error: ${err.message}</span>`;
+                pestField.innerHTML = `<span style="color:red;">Could not load data.</span>`;
+                soilField.innerHTML = `<span style="color:red;">Please try again later.</span>`;
+                promptDiv.style.display = 'block';
+            });
+    }
+
+    document.getElementById('generate-report-btn').addEventListener('click', generateReport);
+    const btn2 = document.getElementById('generate-report-btn-2');
+    if (btn2) btn2.addEventListener('click', generateReport);
+</script>
+{% endblock %}
