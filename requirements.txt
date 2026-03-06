@@ -1,6 +1,7 @@
 django
 gunicorn
 whitenoise
+dj-database-url
 google-generativeai
 python-dotenv
 pillow
