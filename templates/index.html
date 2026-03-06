@@ -180,18 +180,10 @@
             return;
         }
 
-        fetch('/api/detect-language/')
-            .then(r => r.json())
-            .then(data => {
-                const detectedLang = data.lang || 'hi';
-                localStorage.setItem('sakhiAutoLang', detectedLang);
-                if (detectedLang !== 'en') {
-                    switchLanguage(detectedLang);
-                } else {
-                    triggerWelcome('en');
-                }
-            })
-            .catch(() => triggerWelcome('hi'));
+        if (!savedAutoLang) {
+            localStorage.setItem('sakhiAutoLang', 'kn');
+            switchLanguage('kn');
+        }
     });
 </script>
 {% endblock %}

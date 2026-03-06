@@ -1426,8 +1426,8 @@
 
     </div>
 
-    <!-- FLOATING CHATBOT -->
-
+    <!-- FLOATING CHATBOT & TOUR ONLY FOR LOGGED IN USERS -->
+    {% if user.is_authenticated %}
     <button class="sakhi-fab notranslate" id="sakhi-fab" onclick="toggleChat()" aria-label="Open Sakhi Chatbot">
 
         <svg id="fab-icon-chat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="28"
@@ -1580,6 +1580,7 @@
 
     <button class="help-tour-btn notranslate" onclick="startPageTour()" title="Help Tour"
         aria-label="Help Tour">❓</button>
+    {% endif %}
 
     {% block scripts %}{% endblock %}
 
@@ -1663,10 +1664,7 @@
 
             }
 
-            // Shift help tour button (top-right corner)
-
-            if (helpBtn) helpBtn.style.top = (shift + 80) + 'px';
-
+            // Removed helpBtn top shift so it stays at the bottom natively
         }
 
         // Check frequently for changes (handles GT banner show/hide)
@@ -1991,9 +1989,9 @@
                 statusEl.className = 'sakhi-status';
 
                 // Async TTS so it never blocks UI thread
-                setTimeout(function() {
+                setTimeout(function () {
                     try { speakText(finalText, langSelect.value); }
-                    catch(e) { console.warn('TTS error:', e); }
+                    catch (e) { console.warn('TTS error:', e); }
                 }, 80);
 
             } catch (err) {
@@ -2007,157 +2005,157 @@
 
         function addMsg(text, sender) {
 
-                        const div = document.createElement('div');
+            const div = document.createElement('div');
 
-                        const id = 'msg-' + Date.now() + Math.random().toString(36).slice(2, 5);
+            const id = 'msg-' + Date.now() + Math.random().toString(36).slice(2, 5);
 
-                        div.id = id;
+            div.id = id;
 
-                        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-                        if (sender === 'user') {
+            if (sender === 'user') {
 
-                            div.className = 's-msg-user';
+                div.className = 's-msg-user';
 
-                            div.innerHTML = `${text}<span class="s-msg-time">${time}</span>`;
+                div.innerHTML = `${text}<span class="s-msg-time">${time}</span>`;
 
-                        } else {
+            } else {
 
-                            div.className = 's-msg-bot';
+                div.className = 's-msg-bot';
 
-                            div.innerHTML = `<div class="s-bot-avatar">S</div><div><span class="s-bot-text">${text}</span><span class="s-msg-time">${time}</span></div>`;
+                div.innerHTML = `<div class="s-bot-avatar">S</div><div><span class="s-bot-text">${text}</span><span class="s-msg-time">${time}</span></div>`;
 
-                        }
+            }
 
-                        messagesBox.appendChild(div);
+            messagesBox.appendChild(div);
 
-                        messagesBox.scrollTo({ top: messagesBox.scrollHeight, behavior: 'smooth' });
+            messagesBox.scrollTo({ top: messagesBox.scrollHeight, behavior: 'smooth' });
 
-                        return id;
+            return id;
 
-                    }
+        }
 
-                    function speakText(text, lang) {
+        function speakText(text, lang) {
 
-                        if (!window.speechSynthesis || !text) return;
+            if (!window.speechSynthesis || !text) return;
 
-                        window.speechSynthesis.cancel();
+            window.speechSynthesis.cancel();
 
-                        isSpeaking = true;
+            isSpeaking = true;
 
-                        const cleanText = text.replace(/[\*#\u200b]/g, '').trim();
+            const cleanText = text.replace(/[\*#\u200b]/g, '').trim();
 
-                        if (!cleanText) { isSpeaking = false; return; }
+            if (!cleanText) { isSpeaking = false; return; }
 
-                        function pickBestVoice(voices, targetLang) {
+            function pickBestVoice(voices, targetLang) {
 
-                            // Prefer female voices in the target language (Indian female first)
+                // Prefer female voices in the target language (Indian female first)
 
-                            const lc = (targetLang || 'hi-IN').toLowerCase();
+                const lc = (targetLang || 'hi-IN').toLowerCase();
 
-                            const langShort = lc.split('-')[0];
+                const langShort = lc.split('-')[0];
 
-                            const femalePriority = [
+                const femalePriority = [
 
-                                v => v.lang.toLowerCase() === lc && /female|woman|girl/i.test(v.name),
+                    v => v.lang.toLowerCase() === lc && /female|woman|girl/i.test(v.name),
 
-                                v => v.lang.toLowerCase().startsWith(langShort) && /female|woman|girl/i.test(v.name),
+                    v => v.lang.toLowerCase().startsWith(langShort) && /female|woman|girl/i.test(v.name),
 
-                                v => v.lang.toLowerCase() === lc,
+                    v => v.lang.toLowerCase() === lc,
 
-                                v => v.lang.toLowerCase().startsWith(langShort) && v.lang.includes('IN'),
+                    v => v.lang.toLowerCase().startsWith(langShort) && v.lang.includes('IN'),
 
-                                v => v.lang.toLowerCase().startsWith(langShort),
+                    v => v.lang.toLowerCase().startsWith(langShort),
 
-                                v => v.lang === 'en-IN',  // Indian English as last resort
+                    v => v.lang === 'en-IN',  // Indian English as last resort
 
-                            ];
+                ];
 
-                            for (const fn of femalePriority) {
+                for (const fn of femalePriority) {
 
-                                const match = voices.find(fn);
+                    const match = voices.find(fn);
 
-                                if (match) return match;
+                    if (match) return match;
 
-                            }
+                }
 
-                            return null;
+                return null;
 
-                        }
+            }
 
-                        function doSpeak() {
+            function doSpeak() {
 
-                            const utterance = new SpeechSynthesisUtterance(cleanText);
+                const utterance = new SpeechSynthesisUtterance(cleanText);
 
-                            utterance.lang = lang || langSelect.value || 'kn-IN';
+                utterance.lang = lang || langSelect.value || 'kn-IN';
 
-                            utterance.rate = 0.88;
+                utterance.rate = 0.88;
 
-                            utterance.pitch = 1.1; // slightly higher → more natural female pitch
+                utterance.pitch = 1.1; // slightly higher → more natural female pitch
 
-                            const voices = window.speechSynthesis.getVoices();
+                const voices = window.speechSynthesis.getVoices();
 
-                            if (voices.length > 0) {
+                if (voices.length > 0) {
 
-                                utterance.voice = pickBestVoice(voices, utterance.lang);
+                    utterance.voice = pickBestVoice(voices, utterance.lang);
 
-                            }
+                }
 
-                            utterance.onend = () => { isSpeaking = false; };
+                utterance.onend = () => { isSpeaking = false; };
 
-                            window.speechSynthesis.speak(utterance);
+                window.speechSynthesis.speak(utterance);
 
-                        }
+            }
 
-                        const voices = window.speechSynthesis.getVoices();
+            const voices = window.speechSynthesis.getVoices();
 
-                        if (voices.length > 0) {
+            if (voices.length > 0) {
 
-                            doSpeak();
+                doSpeak();
 
-                        } else {
+            } else {
 
-                            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.onvoiceschanged = () => {
 
-                                window.speechSynthesis.onvoiceschanged = null;
+                    window.speechSynthesis.onvoiceschanged = null;
 
-                                doSpeak();
+                    doSpeak();
 
-                            };
+                };
 
-                            setTimeout(() => { if (window.speechSynthesis.getVoices().length === 0) { doSpeak(); } }, 1500);
+                setTimeout(() => { if (window.speechSynthesis.getVoices().length === 0) { doSpeak(); } }, 1500);
 
-                        }
+            }
 
-                    }
+        }
 
-                    stopSpeechBtn.addEventListener('click', () => { window.speechSynthesis.cancel(); isSpeaking = false; });
+        stopSpeechBtn.addEventListener('click', () => { window.speechSynthesis.cancel(); isSpeaking = false; });
 
-                    // Preload voices
+        // Preload voices
 
-                    if (window.speechSynthesis) { window.speechSynthesis.getVoices(); }
+        if (window.speechSynthesis) { window.speechSynthesis.getVoices(); }
 
-                    // Set default chatbot language from user profile or auto-detect
+        // Set default chatbot language from user profile or auto-detect
 
-                    (function setDefaultChatLang() {
+        (function setDefaultChatLang() {
 
-                        const profileLang = "{% if user.is_authenticated %}{% with user.userprofile as p %}{{ p.language|default:'hi' }}{% endwith %}{% endif %}";
+            const profileLang = "{% if user.is_authenticated %}{% with user.userprofile as p %}{{ p.language|default:'hi' }}{% endwith %}{% endif %}";
 
-                        const autLang = localStorage.getItem('sakhiManualLang') || localStorage.getItem('sakhiAutoLang') || profileLang || 'hi';
+            const autLang = localStorage.getItem('sakhiManualLang') || localStorage.getItem('sakhiAutoLang') || profileLang || 'hi';
 
-                        const bcp = { 'hi': 'hi-IN', 'kn': 'kn-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN', 'en': 'en-US' };
+            const bcp = { 'hi': 'hi-IN', 'kn': 'kn-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN', 'en': 'en-US' };
 
-                        const bcpVal = bcp[autLang] || 'hi-IN';
+            const bcpVal = bcp[autLang] || 'hi-IN';
 
-                        if (langSelect) {
+            if (langSelect) {
 
-                            langSelect.value = bcpVal;
+                langSelect.value = bcpVal;
 
-                            if (!langSelect.value) langSelect.value = 'hi-IN'; // fallback if option doesn't exist
+                if (!langSelect.value) langSelect.value = 'hi-IN'; // fallback if option doesn't exist
 
-                        }
+            }
 
-                    })();
+        })();
 
     </script>
 
@@ -2165,319 +2163,300 @@
 
     <script>
 
-                    // --- CENTRAL VOICE ENGINE ---
+        // --- CENTRAL VOICE ENGINE ---
 
-                    function getPageLang() {
+        function getPageLang() {
 
-                        const manual = localStorage.getItem('sakhiManualLang');
+            const manual = localStorage.getItem('sakhiManualLang');
 
-                        if (manual) return manual;
+            if (manual) return manual;
 
-                        const auto = localStorage.getItem('sakhiAutoLang');
+            const auto = localStorage.getItem('sakhiAutoLang');
 
-                        if (auto) return auto;
+            if (auto) return auto;
 
-                        const match = document.cookie.match(/googtrans=\/en\/(\w+)/);
+            const match = document.cookie.match(/googtrans=\/en\/(\w+)/);
 
-                        if (match && match[1]) return match[1];
+            if (match && match[1]) return match[1];
 
-                        return 'en';
+            return 'en';
 
+        }
+
+        const LANG_MAP = { 'hi': 'hi-IN', 'kn': 'kn-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN', 'en': 'en-IN' };
+
+        function speakLocalText(text, bcp47Override) {
+            if (!text) return;
+
+            // Cancel any current browser speech
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+            const lang = getPageLang();
+            const bcp47 = bcp47Override || LANG_MAP[lang] || 'en-IN';
+            const cleanText = text.replace(/[\*#\u200b]/g, '').trim();
+
+            if (!cleanText) return;
+
+            // Use Google Translate TTS for Indian languages (most reliable)
+            if (lang !== 'en') {
+                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(cleanText.substring(0, 200))}&tl=${lang}&client=tw-ob`;
+                const audio = new Audio(url);
+                audio.play().catch(() => fallbackBrowserTTS());
+                return;
+            }
+
+            fallbackBrowserTTS();
+
+            function fallbackBrowserTTS() {
+                if (!window.speechSynthesis) return;
+                function doSpeak() {
+                    const utterance = new SpeechSynthesisUtterance(cleanText);
+                    utterance.lang = bcp47;
+                    utterance.rate = 0.92;
+                    const voices = window.speechSynthesis.getVoices();
+                    if (voices.length > 0) {
+                        const exact = voices.find(v => v.lang === bcp47);
+                        const startsWith = voices.find(v => v.lang.startsWith(lang));
+                        const indianEn = voices.find(v => v.lang === 'en-IN');
+                        utterance.voice = exact || startsWith || indianEn || null;
                     }
+                    window.speechSynthesis.speak(utterance);
+                }
 
-                    const LANG_MAP = { 'hi': 'hi-IN', 'kn': 'kn-IN', 'ta': 'ta-IN', 'te': 'te-IN', 'mr': 'mr-IN', 'en': 'en-IN' };
-
-                    function speakLocalText(text, bcp47Override) {
-
-                        if (!window.speechSynthesis || !text) return;
-
-                        // Cancel any current speech first
-
-                        window.speechSynthesis.cancel();
-
-                        const lang = getPageLang();
-
-                        const bcp47 = bcp47Override || LANG_MAP[lang] || 'en-IN';
-
-                        const cleanText = text.replace(/[\*#\u200b]/g, '').trim();
-
-                        if (!cleanText) return;
-
-                        function doSpeak() {
-
-                            const utterance = new SpeechSynthesisUtterance(cleanText);
-
-                            utterance.lang = bcp47;
-
-                            utterance.rate = 0.92;
-
-                            const voices = window.speechSynthesis.getVoices();
-
-                            if (voices.length > 0) {
-
-                                const exact = voices.find(v => v.lang === bcp47);
-
-                                const startsWith = voices.find(v => v.lang.startsWith(lang));
-
-                                const indianEn = voices.find(v => v.lang === 'en-IN');
-
-                                utterance.voice = exact || startsWith || indianEn || null;
-
-                            }
-
-                            // Speak directly — no extra cancel() here (that causes the 1-letter bug)
-
-                            window.speechSynthesis.speak(utterance);
-
-                        }
-
-                        // Poll every 100ms up to 20 attempts until voices are available
-
-                        let attempts = 0;
-
-                        function trySpeak() {
-
-                            if (window.speechSynthesis.getVoices().length > 0) {
-
-                                doSpeak();
-
-                            } else if (attempts < 20) {
-
-                                attempts++;
-
-                                setTimeout(trySpeak, 100);
-
-                            } else {
-
-                                doSpeak(); // speak with default voice as last resort
-
-                            }
-
-                        }
-
-                        trySpeak();
-
+                let attempts = 0;
+                function trySpeak() {
+                    if (window.speechSynthesis.getVoices().length > 0) {
+                        doSpeak();
+                    } else if (attempts < 20) {
+                        attempts++;
+                        setTimeout(trySpeak, 100);
+                    } else {
+                        doSpeak();
                     }
+                }
+                trySpeak();
+            }
+        }
 
-                    // --- GLOBAL SPOTLIGHT TOUR ---
+        // --- GLOBAL SPOTLIGHT TOUR ---
 
-                    let _tourStep = 0;
+        let _tourStep = 0;
 
-                    let _tourActive = false;
+        let _tourActive = false;
 
-                    function startPageTour() {
+        function startPageTour() {
 
-                        if (!window.pageTourSteps || window.pageTourSteps.length === 0) return;
+            if (!window.pageTourSteps || window.pageTourSteps.length === 0) return;
 
-                        _tourStep = 0;
+            _tourStep = 0;
 
-                        _tourActive = true;
+            _tourActive = true;
 
-                        document.getElementById('tour-spotlight').style.opacity = '1';
+            document.getElementById('tour-spotlight').style.opacity = '1';
 
-                        document.getElementById('tour-tooltip').style.opacity = '1';
+            document.getElementById('tour-tooltip').style.opacity = '1';
 
-                        document.getElementById('tour-spotlight').classList.add('spotlight-active');
+            document.getElementById('tour-spotlight').classList.add('spotlight-active');
 
-                        document.body.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
 
-                        showTourStep();
+            showTourStep();
 
-                    }
+        }
 
-                    function showTourStep() {
+        function showTourStep() {
 
-                        if (!window.pageTourSteps || _tourStep >= window.pageTourSteps.length) { endTour(); return; }
+            if (!window.pageTourSteps || _tourStep >= window.pageTourSteps.length) { endTour(); return; }
 
-                        const step = window.pageTourSteps[_tourStep];
+            const step = window.pageTourSteps[_tourStep];
 
-                        const lang = getPageLang();
+            const lang = getPageLang();
 
-                        // Get localized text (fallback to en)
+            // Get localized text (fallback to en)
 
-                        const title = step['title_' + lang] || step.title;
+            const title = step['title_' + lang] || step.title;
 
-                        const desc = step['desc_' + lang] || step.desc;
+            const desc = step['desc_' + lang] || step.desc;
 
-                        const targetEl = document.getElementById(step.target);
+            const targetEl = document.getElementById(step.target);
 
-                        const spotlight = document.getElementById('tour-spotlight');
+            const spotlight = document.getElementById('tour-spotlight');
 
-                        const tooltip = document.getElementById('tour-tooltip');
+            const tooltip = document.getElementById('tour-tooltip');
 
-                        if (!targetEl) { nextStep(); return; }
+            if (!targetEl) { nextStep(); return; }
 
-                        // Scroll element into view
+            // Scroll element into view
 
-                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                        setTimeout(() => {
+            setTimeout(() => {
 
-                            const rect = targetEl.getBoundingClientRect();
+                const rect = targetEl.getBoundingClientRect();
 
-                            spotlight.style.width = (rect.width + 16) + 'px';
+                spotlight.style.width = (rect.width + 16) + 'px';
 
-                            spotlight.style.height = (rect.height + 16) + 'px';
+                spotlight.style.height = (rect.height + 16) + 'px';
 
-                            spotlight.style.top = (rect.top - 8) + 'px';
+                spotlight.style.top = (rect.top - 8) + 'px';
 
-                            spotlight.style.left = (rect.left - 8) + 'px';
+                spotlight.style.left = (rect.left - 8) + 'px';
 
-                            document.getElementById('ttTitle').innerText = title;
+                document.getElementById('ttTitle').innerText = title;
 
-                            document.getElementById('ttDesc').innerText = desc;
+                document.getElementById('ttDesc').innerText = desc;
 
-                            // Position tooltip: prefer below element, else above, always clamped to viewport
+                // Position tooltip: prefer below element, else above, always clamped to viewport
 
-                            const TOOLTIP_W = 300;
+                const TOOLTIP_W = 300;
 
-                            const TOOLTIP_H = 190; // approximate height incl. buttons
+                const TOOLTIP_H = 190; // approximate height incl. buttons
 
-                            const MARGIN = 12;
+                const MARGIN = 12;
 
-                            const spaceBelow = window.innerHeight - rect.bottom;
+                const spaceBelow = window.innerHeight - rect.bottom;
 
-                            let candidateTop;
+                let candidateTop;
 
-                            if (spaceBelow >= TOOLTIP_H + MARGIN) {
+                if (spaceBelow >= TOOLTIP_H + MARGIN) {
 
-                                candidateTop = rect.bottom + MARGIN;
+                    candidateTop = rect.bottom + MARGIN;
 
-                            } else if (rect.top >= TOOLTIP_H + MARGIN) {
+                } else if (rect.top >= TOOLTIP_H + MARGIN) {
 
-                                candidateTop = rect.top - TOOLTIP_H - MARGIN;
+                    candidateTop = rect.top - TOOLTIP_H - MARGIN;
 
-                            } else {
+                } else {
 
-                                // Element takes most of the screen — place tooltip at bottom of viewport
+                    // Element takes most of the screen — place tooltip at bottom of viewport
 
-                                candidateTop = window.innerHeight - TOOLTIP_H - MARGIN;
+                    candidateTop = window.innerHeight - TOOLTIP_H - MARGIN;
 
-                            }
+                }
 
-                            // Clamp top so tooltip never goes off-screen vertically
+                // Clamp top so tooltip never goes off-screen vertically
 
-                            const clampedTop = Math.min(Math.max(MARGIN, candidateTop), window.innerHeight - TOOLTIP_H - MARGIN);
+                const clampedTop = Math.min(Math.max(MARGIN, candidateTop), window.innerHeight - TOOLTIP_H - MARGIN);
 
-                            // Clamp left so tooltip never overflows horizontally
+                // Clamp left so tooltip never overflows horizontally
 
-                            const idealLeft = Math.round(window.innerWidth / 2 - TOOLTIP_W / 2);
+                const idealLeft = Math.round(window.innerWidth / 2 - TOOLTIP_W / 2);
 
-                            const clampedLeft = Math.min(Math.max(MARGIN, idealLeft), window.innerWidth - TOOLTIP_W - MARGIN);
+                const clampedLeft = Math.min(Math.max(MARGIN, idealLeft), window.innerWidth - TOOLTIP_W - MARGIN);
 
-                            tooltip.style.top = clampedTop + 'px';
+                tooltip.style.top = clampedTop + 'px';
 
-                            tooltip.style.left = clampedLeft + 'px';
+                tooltip.style.left = clampedLeft + 'px';
 
-                            tooltip.style.width = TOOLTIP_W + 'px';
+                tooltip.style.width = TOOLTIP_W + 'px';
 
-                            // Button text
+                // Button text
 
-                            const btn = document.getElementById('ttBtn');
+                const btn = document.getElementById('ttBtn');
 
-                            if (_tourStep === window.pageTourSteps.length - 1) {
+                if (_tourStep === window.pageTourSteps.length - 1) {
 
-                                btn.innerText = 'Finish ✅';
+                    btn.innerText = 'Finish ✅';
 
-                            } else {
+                } else {
 
-                                const nextLabels = { 'hi': 'आगे →', 'kn': 'ಮುಂದೆ →', 'ta': 'அடுத்து →', 'te': 'తర్వాత →' };
+                    const nextLabels = { 'hi': 'आगे →', 'kn': 'ಮುಂದೆ →', 'ta': 'அடுத்து →', 'te': 'తర్వాత →' };
 
-                                btn.innerText = nextLabels[lang] || 'Next →';
+                    btn.innerText = nextLabels[lang] || 'Next →';
 
-                            }
+                }
 
-                            // Speak the step description — delay slightly so UI updates first
+                // Speak the step description — delay slightly so UI updates first
 
-                            setTimeout(() => speakLocalText(desc), 300);
+                setTimeout(() => speakLocalText(desc), 300);
 
-                        }, 600);
+            }, 600);
 
-                    }
+        }
 
-                    function nextStep() {
+        function nextStep() {
 
-                        if (_tourStep < (window.pageTourSteps || []).length - 1) {
+            if (_tourStep < (window.pageTourSteps || []).length - 1) {
 
-                            _tourStep++;
+                _tourStep++;
 
-                            showTourStep();
+                showTourStep();
 
-                        } else {
+            } else {
 
-                            endTour();
+                endTour();
 
-                        }
+            }
 
-                    }
+        }
 
-                    function endTour() {
+        function endTour() {
 
-                        _tourActive = false;
+            _tourActive = false;
 
-                        document.getElementById('tour-spotlight').style.opacity = '0';
+            document.getElementById('tour-spotlight').style.opacity = '0';
 
-                        document.getElementById('tour-tooltip').style.opacity = '0';
+            document.getElementById('tour-tooltip').style.opacity = '0';
 
-                        document.body.style.overflow = 'auto';
+            document.body.style.overflow = 'auto';
 
-                        window.speechSynthesis.cancel();
+            window.speechSynthesis.cancel();
 
-                        setTimeout(() => {
+            setTimeout(() => {
 
-                            document.getElementById('tour-spotlight').classList.remove('spotlight-active');
+                document.getElementById('tour-spotlight').classList.remove('spotlight-active');
 
-                        }, 500);
+            }, 500);
 
-                        // Mark this page's tour as seen
+            // Mark this page's tour as seen
 
-                        localStorage.setItem('tourSeen_' + window.location.pathname, 'true');
+            localStorage.setItem('tourSeen_' + window.location.pathname, 'true');
 
-                    }
+        }
 
-                    // Auto-start tour — pre-warm voices first so step 1 has audio
+        // Auto-start tour — pre-warm voices first so step 1 has audio
 
-                    window.addEventListener('load', () => {
+        window.addEventListener('load', () => {
 
-                        // Kick-start voice loading immediately at page start
+            // Kick-start voice loading immediately at page start
 
-                        if (window.speechSynthesis) {
+            if (window.speechSynthesis) {
 
-                            window.speechSynthesis.getVoices();
+                window.speechSynthesis.getVoices();
 
-                            window.speechSynthesis.onvoiceschanged = function () { window.speechSynthesis.onvoiceschanged = null; };
+                window.speechSynthesis.onvoiceschanged = function () { window.speechSynthesis.onvoiceschanged = null; };
 
-                        }
+            }
 
-                        // Start tour after 3s (voices have extra time to load)
+            // Start tour after 3s (voices have extra time to load)
 
-                        setTimeout(function () {
+            setTimeout(function () {
 
-                            if (window.pageTourSteps && window.pageTourSteps.length > 0) {
+                if (window.pageTourSteps && window.pageTourSteps.length > 0) {
 
-                                startPageTour();
+                    startPageTour();
 
-                            }
+                }
 
-                        }, 3000);
+            }, 3000);
 
-                    });
+        });
 
-                    // Help button also starts tour
+        // Help button also starts tour
 
-                    document.querySelector('.help-tour-btn')?.addEventListener('click', () => {
+        document.querySelector('.help-tour-btn')?.addEventListener('click', () => {
 
-                        startPageTour();
+            startPageTour();
 
-                    });
+        });
 
-                    // Handle resize during tour
+        // Handle resize during tour
 
-                    window.addEventListener('resize', () => {
+        window.addEventListener('resize', () => {
 
-                        if (_tourActive) showTourStep();
+            if (_tourActive) showTourStep();
 
-                    });
+        });
 
     </script>
 

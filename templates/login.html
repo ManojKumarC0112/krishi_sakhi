@@ -301,7 +301,10 @@
       const hints = voiceHints[field];
       const text = hints[lang] || hints['en'];
       document.getElementById('voice-guide-text').textContent = text;
-      if ('speechSynthesis' in window) {
+      if (lang !== 'en') {
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${lang}&client=tw-ob`;
+        new Audio(url).play().catch(() => { });
+      } else if ('speechSynthesis' in window) {
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
         u.lang = bcp; u.rate = .95; u.pitch = 1;
@@ -329,7 +332,10 @@
       const text = welcomes[lang] || welcomes['hi'];
       document.getElementById('voice-guide-text').textContent = text;
       setTimeout(() => {
-        if ('speechSynthesis' in window) {
+        if (lang !== 'en') {
+          const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${lang}&client=tw-ob`;
+          new Audio(url).play().catch(() => { });
+        } else if ('speechSynthesis' in window) {
           speechSynthesis.cancel();
           const u = new SpeechSynthesisUtterance(text);
           u.lang = bcp; u.rate = .9;
@@ -337,17 +343,11 @@
         }
       }, 600);
 
-      // Auto-detect language
+      // Force Default Language to Kannada (kn) instead of GeoLocation
       const savedLang = localStorage.getItem('sakhiAutoLang');
       if (!savedLang) {
-        fetch('/api/detect-language/')
-          .then(r => r.json())
-          .then(d => {
-            if (d.lang) {
-              localStorage.setItem('sakhiAutoLang', d.lang);
-              if (d.lang !== 'en') switchLanguage(d.lang);
-            }
-          }).catch(() => { });
+        localStorage.setItem('sakhiAutoLang', 'kn');
+        switchLanguage('kn');
       }
     });
 

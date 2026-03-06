@@ -324,7 +324,7 @@ def set_language(request):
 #  AUTH
 # ─────────────────────────────────────────────────────────────
 def index_view(request):
-    lang = request.GET.get('lang', 'en')
+    lang = request.GET.get('lang', 'kn')
     try:
         profile_lang = request.user.userprofile.language if request.user.is_authenticated else 'en'
         if profile_lang and profile_lang != 'en':
