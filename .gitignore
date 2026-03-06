@@ -10,7 +10,7 @@ __pycache__/
 # Django
 *.pyc
 db.sqlite3
-/static/
+staticfiles/
 /media/
 /field_videos/
 /predictions/
